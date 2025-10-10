@@ -1,0 +1,22 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Environment variables and sensitive data
+.env
+.Renviron
+
+# Database credentials
+database_config.R
+
+# Deployment configurations with sensitive data
+rsconnect/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/

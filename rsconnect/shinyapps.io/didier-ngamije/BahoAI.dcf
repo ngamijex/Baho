@@ -1,0 +1,12 @@
+name: BahoAI
+title: BahoAI
+username: didier-ngamije
+account: didier-ngamije
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 15511836
+bundleId: 10929865
+url: https://baho.shinyapps.io/BahoAI/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
