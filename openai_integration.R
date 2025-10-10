@@ -1,9 +1,13 @@
 library(httr)
 library(jsonlite)
 
-# Load environment variables
-if (file.exists(".env")) {
-  readRenviron(".env")
+# Load environment variables from .env file
+env_file <- file.path(getwd(), ".env")
+if (file.exists(env_file)) {
+  readRenviron(env_file)
+  print(paste("✅ Loaded .env file from:", env_file))
+} else {
+  print(paste("⚠️ .env file not found at:", env_file))
 }
 
 # Get API key from environment
@@ -11,8 +15,20 @@ api_key <- Sys.getenv("OPENAI_API_KEY")
 
 # Check if API key is loaded
 if (api_key == "" || is.null(api_key)) {
-  stop("ERROR: OPENAI_API_KEY not found. Please create a .env file with your API key.")
+  # Try alternative: load from .Renviron
+  renviron_file <- file.path(Sys.getenv("HOME"), ".Renviron")
+  if (file.exists(renviron_file)) {
+    readRenviron(renviron_file)
+    api_key <- Sys.getenv("OPENAI_API_KEY")
+  }
+  
+  if (api_key == "" || is.null(api_key)) {
+    stop("ERROR: OPENAI_API_KEY not found. Please create a .env file with your API key in the project directory.")
+  }
 }
+
+# Confirm API key is loaded (show only first few characters)
+print(paste("✅ API Key loaded:", substr(api_key, 1, 15), "..."))
 
 # OpenAI configuration
 OPENAI_CONFIG <- list(
