@@ -2,6 +2,12 @@
 
 BahoAI is a Shiny-based web application that provides AI-powered health assistance specifically designed for Rwanda. It offers culturally sensitive health information and guidance in both English and Kinyarwanda.
 
+## 🌐 Live Demo
+
+**Try BahoAI now:** [https://baho.shinyapps.io/BahoAI/](https://baho.shinyapps.io/BahoAI/)
+
+Experience the first line of health service delivery for Rwanda with 24/7 AI-powered health support in Kinyarwanda and English.
+
 ## Features
 
 - **AI Health Assistant**: Powered by OpenAI's GPT-4, providing intelligent health advice
