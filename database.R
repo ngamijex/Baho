@@ -5,7 +5,15 @@ library(uuid)
 library(digest)  # For password hashing
 
 # Database configuration
-DB_CONFIG <- list( host = "localhost", port = 5432, dbname = "baho_health_ai", user = "postgres", password = "didier" )
+# Using Neon cloud database
+DB_CONFIG <- list(
+  host = Sys.getenv("DB_HOST", "ep-icy-paper-advzlb2s-pooler.c-2.us-east-1.aws.neon.tech"),
+  port = as.integer(Sys.getenv("DB_PORT", "5432")),
+  dbname = Sys.getenv("DB_NAME", "neondb"),
+  user = Sys.getenv("DB_USER", "neondb_owner"),
+  password = Sys.getenv("DB_PASSWORD", "npg_j0rKI9WUVbCS"),
+  sslmode = "require"  # Required for Neon
+)
 
 
 # Password hashing functions
@@ -32,7 +40,8 @@ db_connect <- function() {
       port = DB_CONFIG$port,
       dbname = DB_CONFIG$dbname,
       user = DB_CONFIG$user,
-      password = DB_CONFIG$password
+      password = DB_CONFIG$password,
+      sslmode = DB_CONFIG$sslmode
     )
     return(conn)
   }, error = function(e) {
@@ -51,6 +60,7 @@ create_db_pool <- function() {
       dbname = DB_CONFIG$dbname,
       user = DB_CONFIG$user,
       password = DB_CONFIG$password,
+      sslmode = DB_CONFIG$sslmode,
       minSize = 1,
       maxSize = 10
     )
@@ -69,7 +79,7 @@ db_functions <- list(
     hashed_password <- hash_password(password)
     
     query <- "
-      INSERT INTO users (username, email, phone, location, password_hash)
+      INSERT INTO public.users (username, email, phone, location, password_hash)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING user_id
     "
@@ -79,7 +89,7 @@ db_functions <- list(
   
   authenticate_user = function(pool, email, password) {
     # Get user by email first
-    query <- "SELECT * FROM users WHERE email = $1"
+    query <- "SELECT * FROM public.users WHERE email = $1"
     user <- dbGetQuery(pool, query, params = list(email))
     
     if (nrow(user) > 0) {
@@ -95,14 +105,14 @@ db_functions <- list(
   },
   
   get_user = function(pool, user_id) {
-    query <- "SELECT * FROM users WHERE user_id = $1"
+    query <- "SELECT * FROM public.users WHERE user_id = $1"
     result <- dbGetQuery(pool, query, params = list(user_id))
     return(result)
   },
   
   get_or_create_user = function(pool, username = "demo_user") {
     # Try to get existing user first
-    query <- "SELECT user_id FROM users WHERE username = $1 LIMIT 1"
+    query <- "SELECT user_id FROM public.users WHERE username = $1 LIMIT 1"
     result <- dbGetQuery(pool, query, params = list(username))
     
     if (nrow(result) > 0) {
@@ -116,7 +126,7 @@ db_functions <- list(
   # Chat session management
   create_chat_session = function(pool, user_id, session_name = "New Chat") {
     query <- "
-      INSERT INTO chat_sessions (user_id, session_name)
+      INSERT INTO public.chat_sessions (user_id, session_name)
       VALUES ($1, $2)
       RETURNING session_id
     "
@@ -126,10 +136,10 @@ db_functions <- list(
   
   get_user_sessions = function(pool, user_id) {
     query <- "
-      SELECT session_id, session_name, created_at, updated_at
-      FROM chat_sessions
+      SELECT session_id, session_name, created_at, last_active
+      FROM public.chat_sessions
       WHERE user_id = $1
-      ORDER BY updated_at DESC
+      ORDER BY last_active DESC
     "
     result <- dbGetQuery(pool, query, params = list(user_id))
     return(result)
@@ -137,10 +147,10 @@ db_functions <- list(
   
   get_latest_session = function(pool, user_id) {
     query <- "
-      SELECT session_id, session_name, created_at, updated_at
-      FROM chat_sessions
+      SELECT session_id, session_name, created_at, last_active
+      FROM public.chat_sessions
       WHERE user_id = $1
-      ORDER BY updated_at DESC
+      ORDER BY last_active DESC
       LIMIT 1
     "
     result <- dbGetQuery(pool, query, params = list(user_id))
@@ -148,20 +158,20 @@ db_functions <- list(
   },
   
   # Message management
-  save_message = function(pool, session_id, user_id, content, sender) {
+  save_message = function(pool, session_id, content, sender) {
     query <- "
-      INSERT INTO messages (session_id, user_id, content, sender)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO public.messages (session_id, content, sender)
+      VALUES ($1, $2, $3)
       RETURNING message_id
     "
-    result <- dbGetQuery(pool, query, params = list(session_id, user_id, content, sender))
+    result <- dbGetQuery(pool, query, params = list(session_id, content, sender))
     return(result$message_id)
   },
   
   get_session_messages = function(pool, session_id) {
     query <- "
       SELECT message_id, content, sender, created_at
-      FROM messages
+      FROM public.messages
       WHERE session_id = $1
       ORDER BY created_at ASC
     "
@@ -171,8 +181,8 @@ db_functions <- list(
   
   update_session_timestamp = function(pool, session_id) {
     query <- "
-      UPDATE chat_sessions
-      SET updated_at = CURRENT_TIMESTAMP
+      UPDATE public.chat_sessions
+      SET last_active = CURRENT_TIMESTAMP
       WHERE session_id = $1
     "
     dbExecute(pool, query, params = list(session_id))
