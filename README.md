@@ -10,6 +10,12 @@ Experience the first line of health service delivery for Rwanda with 24/7 AI-pow
 
 **Watch Demo Video:** [View BahoAI Demo on Google Drive](https://drive.google.com/file/d/1mqKtzt_Kjldo-0dNWFlJ5KteJcumab0c/view?usp=sharing)
 
+### Demo Credentials
+
+To test the application, use these credentials:
+- **Email:** `admin@gmail.com`
+- **Password:** `admin123`
+
 ## Features
 
 - **AI Health Assistant**: Powered by OpenAI's GPT-4, providing intelligent health advice
