@@ -1,0 +1,31 @@
+ID,Language,Category,Subcategory,User_Message,Assistant_Response,Source,Verified,Notes,Priority
+1,Kinyarwanda,Symptoms,Headache,Ndwaye umutwe cyane,"[Add detailed response with remedies, when to see doctor, hospitals]",MOH_Guidelines,No,,High
+2,English,Hospital_Info,Kigali,What are emergency hospitals in Kigali?,"[Add list with contacts, addresses, services]",HMIS_Database,No,,High
+3,Kinyarwanda,Insurance,Mutuelle,Mutuelle yanjye yarangiye nkora iki?,"[Add renewal process, payment info]",RBC_Website,No,,Medium
+4,English,Vaccination,Children,What vaccines does my 6-month-old need?,"[Add EPI schedule, locations, free info]",MOH_EPI_Program,No,,High
+5,Kinyarwanda,Emergency,Fever,Umwana wanjye afite umuriro wa 39°C,"[Add immediate actions, when to go to hospital, emergency contacts]",Pediatric_Guidelines,No,,Critical
+6,English,Disease,Malaria,How is malaria treated in Rwanda?,"[Add treatment protocol, prevention, where to get help]",RBC_Malaria_Program,No,,High
+7,Mixed,Medication,Paracetamol,Paracetamol nifata ibihe?,"[Add dosage in both languages, when to use, side effects]",Essential_Medicines_List,No,,Medium
+8,Kinyarwanda,Maternal_Health,Pregnancy,Ndi mu nda y'amezi 5 nkeneye kuja kwa muganga?,"[Add ANC schedule, what to expect, locations]",Maternal_Health_Program,No,,High
+9,English,HIV_AIDS,Testing,Where can I get HIV testing in Rwanda?,"[Add VCT locations, confidentiality, free services]",HIV_Prevention_Program,No,,High
+10,Kinyarwanda,Mental_Health,Depression,Nfite umubabaro udasanzwe,"[Add supportive response, when to seek help, resources, destigmatize]",Mental_Health_Guidelines,No,,Medium
+11,English,Nutrition,Children,What should I feed my 1-year-old child?,"[Add nutrition guidelines, local foods, portion sizes]",Nutrition_Program,No,,Medium
+12,Kinyarwanda,TB,Treatment,Umwana wanjye afite icy'uruhaha,"[Add TB testing, treatment centers, free treatment info]",TB_Program,No,,High
+13,English,Family_Planning,Methods,What family planning methods are available?,"[Add all methods, where to get them, effectiveness]",FP_Program,No,,Medium
+14,Kinyarwanda,Traditional_Medicine,General,Imiti y'umuhimbano ni yo mu Rwanda?,"[Respectful response about traditional vs modern, safety]",Cultural_Competency_Guide,No,,Medium
+15,English,COVID-19,Vaccination,Where can I get COVID-19 vaccine?,"[Add vaccination sites, eligibility, free info]",COVID_Response_Team,No,,High
+16,Kinyarwanda,District_Hospitals,Huye,Ibitaro biri muri Huye,"[Add all health facilities in Huye, contacts]",HMIS_Database,No,,Low
+17,English,Pharmacy,Kigali,Where can I buy prescription medications?,"[Add pharmacy locations, prescription requirements]",Pharmacy_Board,No,,Medium
+18,Kinyarwanda,Emergency,Ambulance,Nkeneye ambulanse byihutirwa,"[Add 912 number, what to say, when to call]",Emergency_Services,No,,Critical
+19,English,Specialist,Cardiology,Where can I see a cardiologist in Rwanda?,"[Add specialist locations, referral process, costs]",Specialist_Directory,No,,Low
+20,Kinyarwanda,Hygiene,Handwashing,Kwoza amaboko ni ngombwa kuki?,"[Add importance, proper technique, disease prevention]",WASH_Program,No,,Medium
+
+INSTRUCTIONS:
+1. Fill in the Assistant_Response column with detailed, accurate, culturally appropriate responses
+2. Mark Verified as "Yes" after a healthcare professional or native speaker reviews it
+3. Priority: Critical (emergency), High (common/important), Medium (useful), Low (nice to have)
+4. Source: Where you got the information from
+5. Notes: Any special considerations or follow-up needed
+
+TARGET: 200-500 high-quality examples across all categories
+
