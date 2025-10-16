@@ -26,3 +26,9 @@ Thumbs.db
 *.avi
 *.mov
 *.mkv
+
+# Fine-tuning training data (may contain sensitive health information)
+training_data.jsonl
+training_data_*.jsonl
+data_collection.csv
+data_collection_*.csv
