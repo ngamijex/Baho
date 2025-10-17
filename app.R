@@ -61,11 +61,31 @@ server <- function(input, output, session) {
   auth_module <- authServer("auth", navigate_to_chat, navigate_to_home)
   chatModuleServer("chat", auth_module)
   
-  # Global message processing with chat history
+  # Shared database connection pool
+  db_pool <- reactiveVal(NULL)
+  current_session_id <- reactiveVal(NULL)
+  current_user_id <- reactiveVal(NULL)
+  
+  # Initialize database connection pool
+  observe({
+    tryCatch({
+      pool <- create_db_pool()
+      db_pool(pool)
+    }, error = function(e) {
+      cat("❌ Failed to create database pool:", e$message, "\n")
+    })
+  })
+  
+  # Global message processing (bypasses module restart issues)
   observeEvent(input$global_message_process, {
     if (!is.null(input$global_message_process)) {
       message_content <- input$global_message_process$message
       session_id <- input$global_message_process$session_id
+      user_id <- input$global_message_process$user_id
+      
+      # Update reactive values
+      if (!is.null(session_id)) current_session_id(session_id)
+      if (!is.null(user_id)) current_user_id(user_id)
       
       # Process the message directly
       tryCatch({
@@ -74,26 +94,21 @@ server <- function(input, output, session) {
           return()
         }
         
-        # Get database connection
-        db_conn <- db_connect()
-        if (is.null(db_conn)) {
-          session$sendCustomMessage("aiError", list())
-          return()
-        }
+        # Get database pool
+        pool <- db_pool()
         
         # Save user message to database
-        if (!is.null(session_id)) {
-          db_functions$save_message(db_conn, session_id, message_content, "user")
-          db_functions$update_session_timestamp(db_conn, session_id)
+        if (!is.null(pool) && !is.null(session_id)) {
+          db_functions$save_message(pool, session_id, message_content, "user")
+          db_functions$update_session_timestamp(pool, session_id)
         }
         
-        # Get conversation history for context
+        # Load conversation history for context
         conversation_history <- NULL
-        if (!is.null(session_id)) {
-          conversation_history <- db_functions$get_session_messages(db_conn, session_id)
-          # Remove the current message from history (it was just added)
-          if (nrow(conversation_history) > 0) {
-            conversation_history <- conversation_history[-nrow(conversation_history), ]
+        if (!is.null(pool) && !is.null(session_id)) {
+          messages <- db_functions$get_session_messages(pool, session_id)
+          if (nrow(messages) > 0) {
+            conversation_history <- messages
           }
         }
         
@@ -101,19 +116,16 @@ server <- function(input, output, session) {
         ai_response <- openai_functions$send_message(message_content, conversation_history)
         
         # Save AI response to database
-        if (!is.null(session_id)) {
-          db_functions$save_message(db_conn, session_id, ai_response, "ai")
-          db_functions$update_session_timestamp(db_conn, session_id)
+        if (!is.null(pool) && !is.null(session_id)) {
+          db_functions$save_message(pool, session_id, ai_response, "assistant")
+          db_functions$update_session_timestamp(pool, session_id)
         }
         
         # Send AI response to UI
         session$sendCustomMessage("aiResponse", list(content = ai_response))
         
-        # Close database connection
-        dbDisconnect(db_conn)
-        
       }, error = function(e) {
-        cat("❌ Error in global message processing:", e$message, "\n")
+        cat("❌ Error processing message:", e$message, "\n")
         session$sendCustomMessage("aiError", list())
       })
     }
