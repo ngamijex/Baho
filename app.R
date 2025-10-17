@@ -61,10 +61,11 @@ server <- function(input, output, session) {
   auth_module <- authServer("auth", navigate_to_chat, navigate_to_home)
   chatModuleServer("chat", auth_module)
   
-  # Global message processing (bypasses module restart issues)
+  # Global message processing with chat history
   observeEvent(input$global_message_process, {
     if (!is.null(input$global_message_process)) {
       message_content <- input$global_message_process$message
+      session_id <- input$global_message_process$session_id
       
       # Process the message directly
       tryCatch({
@@ -73,13 +74,46 @@ server <- function(input, output, session) {
           return()
         }
         
-        # Get AI response
-        ai_response <- openai_functions$send_message(message_content)
+        # Get database connection
+        db_conn <- db_connect()
+        if (is.null(db_conn)) {
+          session$sendCustomMessage("aiError", list())
+          return()
+        }
+        
+        # Save user message to database
+        if (!is.null(session_id)) {
+          db_functions$save_message(db_conn, session_id, message_content, "user")
+          db_functions$update_session_timestamp(db_conn, session_id)
+        }
+        
+        # Get conversation history for context
+        conversation_history <- NULL
+        if (!is.null(session_id)) {
+          conversation_history <- db_functions$get_session_messages(db_conn, session_id)
+          # Remove the current message from history (it was just added)
+          if (nrow(conversation_history) > 0) {
+            conversation_history <- conversation_history[-nrow(conversation_history), ]
+          }
+        }
+        
+        # Get AI response with conversation history
+        ai_response <- openai_functions$send_message(message_content, conversation_history)
+        
+        # Save AI response to database
+        if (!is.null(session_id)) {
+          db_functions$save_message(db_conn, session_id, ai_response, "ai")
+          db_functions$update_session_timestamp(db_conn, session_id)
+        }
         
         # Send AI response to UI
         session$sendCustomMessage("aiResponse", list(content = ai_response))
         
+        # Close database connection
+        dbDisconnect(db_conn)
+        
       }, error = function(e) {
+        cat("❌ Error in global message processing:", e$message, "\n")
         session$sendCustomMessage("aiError", list())
       })
     }
