@@ -1,0 +1,414 @@
+/* ===== HEALTH PROGRAMS STYLES ===== */
+
+.health-programs-section {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 2.5rem 2rem;
+  background: #FFFFFF;
+}
+
+/* Programs Header */
+.programs-header {
+  max-width: 1400px;
+  margin: 0 auto 2.5rem;
+  padding: 0 1rem;
+}
+
+.programs-header-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1A202C;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.programs-header-description {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #4A5568;
+  max-width: 800px;
+}
+
+/* Programs Grid - 3 cards in one row */
+.programs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Program Card - Clean Professional Design */
+.program-card {
+  background: #FFFFFF;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+}
+
+.program-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(43, 122, 155, 0.15);
+  border-color: rgba(43, 122, 155, 0.3);
+}
+
+/* Program Image Container - Smaller for 3 cards in row */
+.program-image {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, rgba(43, 122, 155, 0.03), rgba(28, 189, 217, 0.03));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.program-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  transition: transform 0.5s ease;
+}
+
+.program-card:hover .program-image img {
+  transform: scale(1.05);
+}
+
+/* Program Content - Compact for 3 cards */
+.program-content {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.program-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1A202C;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.program-description {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #4A5568;
+  margin-bottom: 1.25rem;
+  flex: 1;
+}
+
+/* Program Stats - Compact */
+.program-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid #E2E8F0;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #718096;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.stat-item i {
+  color: var(--stat-color);
+  font-size: 0.9rem;
+}
+
+/* Color Variables for Each Program */
+.program-pregnancy {
+  --stat-color: #2B7A9B;
+  --btn-gradient-start: #2B7A9B;
+  --btn-gradient-end: #4895C7;
+  --btn-shadow: rgba(43, 122, 155, 0.3);
+}
+
+.program-childcare {
+  --stat-color: #1CBDD9;
+  --btn-gradient-start: #1CBDD9;
+  --btn-gradient-end: #4895C7;
+  --btn-shadow: rgba(28, 189, 217, 0.3);
+}
+
+.program-chronic {
+  --stat-color: #2B7A9B;
+  --btn-gradient-start: #2B7A9B;
+  --btn-gradient-end: #1CBDD9;
+  --btn-shadow: rgba(43, 122, 155, 0.3);
+}
+
+/* Program Button - Compact */
+.program-btn {
+  width: 100%;
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  border-radius: 0.75rem !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  color: #FFFFFF !important;
+  text-transform: none !important;
+  background: linear-gradient(135deg, var(--btn-gradient-start), var(--btn-gradient-end)) !important;
+  box-shadow: 0 4px 15px var(--btn-shadow) !important;
+}
+
+.program-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px var(--btn-shadow) !important;
+}
+
+.program-btn i {
+  transition: transform 0.3s ease;
+  font-size: 1.1rem;
+}
+
+.program-btn:hover i {
+  transform: translateX(4px);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .programs-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .programs-header-title {
+    font-size: 1.75rem;
+  }
+  
+  .programs-header-description {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .health-programs-section {
+    padding: 2rem 1rem;
+  }
+  
+  .programs-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 0.5rem;
+  }
+  
+  .program-image {
+    height: 200px;
+  }
+  
+  .program-content {
+    padding: 1.5rem;
+  }
+  
+  .program-title {
+    font-size: 1.5rem;
+  }
+  
+  .program-stats {
+    gap: 1.5rem;
+  }
+  
+  .stat-item {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .health-programs-section {
+    padding: 1.5rem 0.75rem;
+  }
+  
+  .program-image {
+    height: 180px;
+  }
+  
+  .program-content {
+    padding: 1.25rem;
+  }
+  
+  .program-title {
+    font-size: 1.35rem;
+  }
+  
+  .program-description {
+    font-size: 0.95rem;
+  }
+  
+  .program-stats {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .program-btn {
+    padding: 0.875rem 1.5rem !important;
+    font-size: 1rem !important;
+  }
+}
+
+/* ===== DARK MODE SUPPORT - Matching Chat Interface ===== */
+
+/* Dark mode for health programs section - Same as chat-main */
+.dark-mode .health-programs-section {
+  background: #212121 !important;
+}
+
+/* Dark mode for header */
+.dark-mode .programs-header-title {
+  color: #FFFFFF !important;
+}
+
+.dark-mode .programs-header-description {
+  color: #FFFFFF !important;
+  opacity: 0.9;
+}
+
+/* Dark mode for program cards - Same as message-text */
+.dark-mode .program-card {
+  background: #333333 !important;
+  border-color: #444444 !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark-mode .program-card:hover {
+  box-shadow: 0 12px 32px rgba(43, 122, 155, 0.3) !important;
+  border-color: rgba(43, 122, 155, 0.5) !important;
+}
+
+/* Dark mode for program images */
+.dark-mode .program-image {
+  background: rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark-mode .program-image img {
+  opacity: 0.85;
+}
+
+.dark-mode .program-card:hover .program-image img {
+  opacity: 1;
+}
+
+/* Dark mode for program content */
+.dark-mode .program-title {
+  color: #FFFFFF !important;
+}
+
+.dark-mode .program-description {
+  color: #FFFFFF !important;
+  opacity: 0.9;
+}
+
+/* Dark mode for stats */
+.dark-mode .program-stats {
+  border-top-color: #444444 !important;
+  border-bottom-color: #444444 !important;
+}
+
+.dark-mode .stat-item {
+  color: #FFFFFF !important;
+  opacity: 0.8;
+}
+
+.dark-mode .stat-item i {
+  color: var(--stat-color) !important;
+  filter: brightness(1.2);
+}
+
+/* Dark mode for program buttons - Keep gradient but enhance contrast */
+.dark-mode .program-btn {
+  box-shadow: 0 4px 15px rgba(43, 122, 155, 0.4) !important;
+}
+
+.dark-mode .program-btn:hover {
+  box-shadow: 0 8px 25px rgba(43, 122, 155, 0.5) !important;
+}
+
+/* Automatic system theme detection support - Same as chat interface */
+@media (prefers-color-scheme: dark) {
+  .health-programs-section {
+    background: #212121;
+  }
+  
+  .programs-header-title {
+    color: #FFFFFF;
+  }
+  
+  .programs-header-description {
+    color: #FFFFFF;
+    opacity: 0.9;
+  }
+  
+  .program-card {
+    background: #333333;
+    border-color: #444444;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .program-card:hover {
+    box-shadow: 0 12px 32px rgba(43, 122, 155, 0.3);
+    border-color: rgba(43, 122, 155, 0.5);
+  }
+  
+  .program-image {
+    background: rgba(0, 0, 0, 0.2);
+  }
+  
+  .program-image img {
+    opacity: 0.85;
+  }
+  
+  .program-card:hover .program-image img {
+    opacity: 1;
+  }
+  
+  .program-title {
+    color: #FFFFFF;
+  }
+  
+  .program-description {
+    color: #FFFFFF;
+    opacity: 0.9;
+  }
+  
+  .program-stats {
+    border-top-color: #444444;
+    border-bottom-color: #444444;
+  }
+  
+  .stat-item {
+    color: #FFFFFF;
+    opacity: 0.8;
+  }
+  
+  .stat-item i {
+    filter: brightness(1.2);
+  }
+  
+  .program-btn {
+    box-shadow: 0 4px 15px rgba(43, 122, 155, 0.4);
+  }
+  
+  .program-btn:hover {
+    box-shadow: 0 8px 25px rgba(43, 122, 155, 0.5);
+  }
+}

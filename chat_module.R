@@ -11,6 +11,9 @@ chatModuleUI <- function(id) {
     # Include custom CSS for chat interface
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "chat-styles.css"),
+      tags$link(rel = "stylesheet", type = "text/css", href = "health-programs-styles.css"),
+      tags$link(rel = "stylesheet", type = "text/css", href = "pregnancy-program-styles.css"),
+      tags$link(rel = "stylesheet", type = "text/css", href = "pregnancy-dashboard-styles.css"),
       tags$link(rel = "preconnect", href = "https://fonts.googleapis.com"),
       tags$link(rel = "preconnect", href = "https://fonts.gstatic.com", crossorigin = ""),
       tags$link(href = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap", rel = "stylesheet"),
@@ -33,59 +36,62 @@ chatModuleUI <- function(id) {
         # Sidebar Header (fixed at top)
         tags$div(
           class = "sidebar-header",
-          # Brand Section
+        # Brand Section
+        tags$div(
+          class = "sidebar-brand",
           tags$div(
-            class = "sidebar-brand",
-            tags$div(
-              class = "brand-content",
-              tags$img(src = "baho.png", alt = "Baho", class = "sidebar-logo")
-            )
-          ),
-          
-          # New Chat Button
-          tags$div(
-            class = "new-chat-section",
-            actionButton(
-              inputId = ns("new_chat"),
-              label = tags$div(
-                class = "new-chat-content",
-                tags$div(
-                  class = "new-chat-icon",
-                  tags$span(class = "icon-plus")
-                ),
-                tags$span("New chat")
+            class = "brand-content",
+            tags$img(src = "baho.png", alt = "Baho", class = "sidebar-logo")
+          )
+        ),
+        
+        # New Chat Button
+        tags$div(
+          class = "new-chat-section",
+          actionButton(
+            inputId = ns("new_chat"),
+            label = tags$div(
+              class = "new-chat-content",
+              tags$div(
+                class = "new-chat-icon",
+                tags$span(class = "icon-plus")
               ),
-              class = "new-chat-btn"
-            )
-          ),
-          
-          # Navigation Menu
-          tags$nav(
-            class = "sidebar-nav",
-            tags$ul(
-              class = "nav-list",
-              tags$li(
-                tags$a(
-                  href = "#",
-                  class = "nav-item active",
-                  tags$span(class = "nav-icon", tags$span(class = "icon-chat")),
-                  tags$span("Chats")
-                )
-              ),
-              tags$li(
-                tags$a(
-                  href = "#",
-                  class = "nav-item",
-                  tags$span(class = "nav-icon", tags$span(class = "icon-projects")),
-                  tags$span("Health Programs")
-                )
-              ),
-              tags$li(
-                tags$a(
-                  href = "#",
-                  class = "nav-item",
-                  tags$span(class = "nav-icon", tags$span(class = "icon-settings")),
-                  tags$span("Settings")
+              tags$span("New chat")
+            ),
+            class = "new-chat-btn"
+          )
+        ),
+        
+        # Navigation Menu
+        tags$nav(
+          class = "sidebar-nav",
+          tags$ul(
+            class = "nav-list",
+            tags$li(
+              tags$a(
+                href = "#",
+                  class = "nav-item nav-item-chats active",
+                  id = ns("nav_chats"),
+                  tags$span(class = "nav-icon", tags$i(class = "fas fa-comments")),
+                tags$span("Chats")
+              )
+            ),
+            tags$li(
+              tags$a(
+                href = "#",
+                  class = "nav-item nav-item-programs",
+                  id = ns("nav_programs"),
+                  tags$span(class = "nav-icon", tags$i(class = "fas fa-heartbeat")),
+                tags$span("Health Programs")
+              )
+            ),
+            tags$li(
+              tags$a(
+                href = "#",
+                  class = "nav-item nav-item-settings",
+                  id = ns("nav_settings"),
+                  tags$span(class = "nav-icon", tags$i(class = "fas fa-cog")),
+                tags$span("Settings")
                 )
               )
             )
@@ -95,14 +101,14 @@ chatModuleUI <- function(id) {
         # Sidebar Content (scrollable)
         tags$div(
           class = "sidebar-content",
-          # Recent Chats Section
-          tags$div(
-            class = "recent-section",
+        # Recent Chats Section
+        tags$div(
+          class = "recent-section",
             tags$h3(class = "section-title", "Recent Chats"),
-            tags$div(
-              class = "recent-chats",
-              id = ns("recent_chats_list")
-              # Will be populated dynamically
+          tags$div(
+            class = "recent-chats",
+            id = ns("recent_chats_list")
+            # Will be populated dynamically
             )
           )
         ),
@@ -110,21 +116,21 @@ chatModuleUI <- function(id) {
         # Sidebar Footer (fixed at bottom)
         tags$div(
           class = "sidebar-footer",
-          # User Profile Section
+        # User Profile Section
+        tags$div(
+          class = "user-profile",
           tags$div(
-            class = "user-profile",
-            tags$div(
-              class = "profile-avatar",
-              tags$span(id = ns("user_avatar"), "U")
-            ),
-            tags$div(
-              class = "profile-info",
-              tags$span(class = "profile-name", id = ns("user_name"), "User"),
-              tags$span(class = "profile-plan", id = ns("user_location"), "Kigali, Rwanda")
-            ),
-            tags$button(
-              class = "profile-dropdown",
-              tags$span(class = "icon-chevron-down")
+            class = "profile-avatar",
+            tags$span(id = ns("user_avatar"), "U")
+          ),
+          tags$div(
+            class = "profile-info",
+            tags$span(class = "profile-name", id = ns("user_name"), "User"),
+            tags$span(class = "profile-plan", id = ns("user_location"), "Kigali, Rwanda")
+          ),
+          tags$button(
+            class = "profile-dropdown",
+            tags$span(class = "icon-chevron-down")
             )
           )
         )
@@ -139,7 +145,7 @@ chatModuleUI <- function(id) {
           class = "chat-header",
           tags$div(
             class = "header-left",
-            tags$h1(class = "chat-title", "Baho Health Assistant")
+            tags$h1(class = "chat-title", id = ns("main_title"), "Baho Health Assistant")
           ),
           tags$div(
             class = "header-right",
@@ -151,11 +157,11 @@ chatModuleUI <- function(id) {
             tags$button(
               class = "header-btn",
               id = ns("profile_btn"),
-              tags$span(class = "icon-profile")
+              tags$i(class = "fas fa-user")
             ),
             actionButton(
               inputId = ns("back_to_home"),
-              label = tags$span(class = "icon-home"),
+              label = tags$i(class = "fas fa-home"),
               class = "header-btn"
             )
           )
@@ -180,6 +186,181 @@ chatModuleUI <- function(id) {
           id = ns("messages_container")
           # Messages will be populated dynamically
         ),
+        
+        # Health Programs Section (Initially Hidden)
+        tags$div(
+          class = "health-programs-section",
+          id = ns("health_programs_container"),
+          style = "display: none;",
+          
+          # Programs Header - Introduction
+          tags$div(
+            class = "programs-header",
+            tags$h1(
+              class = "programs-header-title",
+              "Baho Health Programs"
+            ),
+            tags$p(
+              class = "programs-header-description",
+              "Choose a comprehensive health journey tailored to your needs. Our programs provide personalized monitoring, expert guidance, and continuous support to help you achieve your health goals. From pregnancy care to child development and chronic disease management, Baho is with you every step of the way."
+            )
+          ),
+          
+          # Programs Grid
+          tags$div(
+            class = "programs-grid",
+            
+            # Program Card: 9 Months with Baho
+            tags$div(
+              class = "program-card program-pregnancy",
+              id = ns("program_9months"),
+              
+              # Program Image
+              tags$div(
+                class = "program-image",
+                tags$img(src = "pregnant.png", alt = "9 Months with Baho")
+              ),
+              
+              # Program Content
+              tags$div(
+                class = "program-content",
+                tags$h2(class = "program-title", "9 Months with Baho"),
+                tags$p(class = "program-description", 
+                  "Comprehensive pregnancy monitoring from conception to childbirth. Track your health, baby development, appointments, and receive personalized guidance throughout your pregnancy journey."
+                ),
+                tags$div(
+                  class = "program-stats",
+                  tags$div(
+                    class = "stat-item",
+                    tags$i(class = "fas fa-calendar-check"),
+                    tags$span("9 Months")
+                  ),
+                  tags$div(
+                    class = "stat-item",
+                    tags$i(class = "fas fa-heartbeat"),
+                    tags$span("Weekly Tracking")
+                  ),
+                  tags$div(
+                    class = "stat-item",
+                    tags$i(class = "fas fa-stethoscope"),
+                    tags$span("Expert Care")
+                  )
+                ),
+                actionButton(
+                  inputId = ns("enroll_9months"),
+                  label = tags$span(
+                    "Get Started",
+                    tags$i(class = "fas fa-arrow-right")
+                  ),
+                  class = "program-btn"
+                )
+              )
+            ),
+            
+            # Program Card: 1000 Days with Baho
+            tags$div(
+              class = "program-card program-childcare",
+              id = ns("program_1000days"),
+              
+              # Program Image
+              tags$div(
+                class = "program-image",
+                tags$img(src = "1000.png", alt = "1000 Days with Baho")
+              ),
+              
+              # Program Content
+              tags$div(
+                class = "program-content",
+                tags$h2(class = "program-title", "1000 Days with Baho"),
+                tags$p(class = "program-description", 
+                  "Child development tracking from birth through the first 1000 days. Monitor growth milestones, vaccinations, nutrition, and receive expert childcare advice for optimal development."
+                ),
+                tags$div(
+                  class = "program-stats",
+                  tags$div(
+                    class = "stat-item",
+                    tags$i(class = "fas fa-baby"),
+                    tags$span("0-3 Years")
+                  ),
+                  tags$div(
+                    class = "stat-item",
+                    tags$i(class = "fas fa-chart-line"),
+                    tags$span("Growth Tracking")
+                  ),
+                  tags$div(
+                    class = "stat-item",
+                    tags$i(class = "fas fa-syringe"),
+                    tags$span("Vaccinations")
+                  )
+                ),
+                actionButton(
+                  inputId = ns("enroll_1000days"),
+                  label = tags$span(
+                    "Get Started",
+                    tags$i(class = "fas fa-arrow-right")
+                  ),
+                  class = "program-btn"
+                )
+              )
+            ),
+            
+            # Program Card: Baho for Life
+            tags$div(
+              class = "program-card program-chronic",
+              id = ns("program_bahoforlife"),
+              
+              # Program Image
+              tags$div(
+                class = "program-image",
+                tags$img(src = "chronic.png", alt = "Baho for Life")
+              ),
+              
+              # Program Content
+              tags$div(
+                class = "program-content",
+                tags$h2(class = "program-title", "Baho for Life"),
+                tags$p(class = "program-description", 
+                  "Chronic disease management and healthy lifestyle support. Track medications, appointments, vital signs, and maintain long-term wellness with personalized health coaching."
+                ),
+                tags$div(
+                  class = "program-stats",
+                  tags$div(
+                    class = "stat-item",
+                    tags$i(class = "fas fa-heart-pulse"),
+                    tags$span("Lifelong Care")
+                  ),
+                  tags$div(
+                    class = "stat-item",
+                    tags$i(class = "fas fa-pills"),
+                    tags$span("Medication")
+                  ),
+                  tags$div(
+                    class = "stat-item",
+                    tags$i(class = "fas fa-chart-simple"),
+                    tags$span("Health Monitoring")
+                  )
+                ),
+                actionButton(
+                  inputId = ns("enroll_bahoforlife"),
+                  label = tags$span(
+                    "Get Started",
+                    tags$i(class = "fas fa-arrow-right")
+                  ),
+                  class = "program-btn"
+                )
+              )
+            )
+          )
+        ),
+        
+        # Pregnancy Program Section (Initially Hidden)
+        pregnancyProgramUI(ns("pregnancy_program")),
+        
+        # Pregnancy Dashboard Section (Initially Hidden)
+        pregnancyDashboardUI(ns("pregnancy_dashboard")),
+        
+        # Child Health Section (Initially Hidden)
+        childHealthUI(ns("child_health")),
         
         # Input Area
         tags$div(
@@ -299,6 +480,215 @@ chatModuleUI <- function(id) {
          
          // Initialize theme on page load
          initializeTheme();
+        
+        // Navigation between Chats and Health Programs
+        function setupNavigation() {
+          const navChats = document.getElementById('", ns("nav_chats"), "') || document.querySelector('.nav-item-chats');
+          const navPrograms = document.getElementById('", ns("nav_programs"), "') || document.querySelector('.nav-item-programs');
+          
+          console.log('🔍 Navigation elements:', {
+            navChats: !!navChats,
+            navPrograms: !!navPrograms
+          });
+          
+          if (navChats) {
+            navChats.addEventListener('click', function(e) {
+              e.preventDefault();
+              console.log('✅ Switching to Chats view');
+              
+              // Get elements
+              const messagesArea = document.querySelector('.chat-messages');
+              const welcomeSection = document.querySelector('.welcome-section');
+              const inputArea = document.querySelector('.chat-input-area');
+              const programsSection = document.getElementById('", ns("health_programs_container"), "') || document.querySelector('.health-programs-section');
+              const pregnancyProgram = document.querySelector('.pregnancy-program-container');
+              const pregnancyDashboard = document.querySelector('.pregnancy-dashboard');
+              const mainTitle = document.getElementById('", ns("main_title"), "') || document.querySelector('.chat-title');
+              const recentChatsSection = document.querySelector('.recent-section');
+              
+              // Update nav active state
+              document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+              navChats.classList.add('active');
+              
+              // Show chat interface
+              if (messagesArea) {
+                messagesArea.style.display = 'flex';
+                console.log('✅ Showed messages area');
+              }
+              if (welcomeSection) {
+                welcomeSection.style.display = 'flex';
+                console.log('✅ Showed welcome section');
+              }
+              if (inputArea) {
+                inputArea.style.display = 'block';
+                console.log('✅ Showed input area');
+              }
+              if (recentChatsSection) {
+                recentChatsSection.style.display = 'block';
+                console.log('✅ Showed recent chats');
+              }
+              
+              // Hide ALL program-related interfaces
+              if (programsSection) {
+                programsSection.style.display = 'none';
+                console.log('✅ Hid programs section');
+              }
+              if (pregnancyProgram) {
+                pregnancyProgram.style.display = 'none';
+                console.log('✅ Hid pregnancy enrollment');
+              }
+              if (pregnancyDashboard) {
+                pregnancyDashboard.style.display = 'none';
+                console.log('✅ Hid pregnancy dashboard');
+              }
+              
+              // Update title
+              if (mainTitle) {
+                mainTitle.textContent = 'Baho Health Assistant';
+                console.log('✅ Updated title');
+              }
+            });
+            console.log('✅ Chats navigation listener attached');
+          }
+          
+          if (navPrograms) {
+            navPrograms.addEventListener('click', function(e) {
+              e.preventDefault();
+              console.log('✅ Switching to Health Programs view');
+              
+              // Get elements dynamically
+              const messagesArea = document.querySelector('.chat-messages');
+              const welcomeSection = document.querySelector('.welcome-section');
+              const inputArea = document.querySelector('.chat-input-area');
+              const programsSection = document.getElementById('", ns("health_programs_container"), "') || document.querySelector('.health-programs-section');
+              const mainTitle = document.getElementById('", ns("main_title"), "') || document.querySelector('.chat-title');
+              const recentChatsSection = document.querySelector('.recent-section');
+              
+              console.log('🔍 Elements found:', {
+                messagesArea: !!messagesArea,
+                welcomeSection: !!welcomeSection,
+                inputArea: !!inputArea,
+                programsSection: !!programsSection,
+                mainTitle: !!mainTitle,
+                recentChatsSection: !!recentChatsSection
+              });
+              
+              // Update nav active state
+              document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+              navPrograms.classList.add('active');
+              
+              // Hide chat interface
+              if (messagesArea) {
+                messagesArea.style.display = 'none';
+                console.log('✅ Hid messages area');
+              }
+              if (welcomeSection) {
+                welcomeSection.style.display = 'none';
+                console.log('✅ Hid welcome section');
+              }
+              if (inputArea) {
+                inputArea.style.display = 'none';
+                console.log('✅ Hid input area');
+              }
+              if (recentChatsSection) {
+                recentChatsSection.style.display = 'none';
+                console.log('✅ Hid recent chats');
+              }
+              
+              // Show programs interface
+              if (programsSection) {
+                programsSection.style.display = 'block';
+                console.log('✅ Showed programs section');
+              } else {
+                console.error('❌ Programs section not found!');
+              }
+              
+              // Update title
+              if (mainTitle) {
+                mainTitle.textContent = 'Health Programs';
+                console.log('✅ Updated title');
+              }
+            });
+            console.log('✅ Programs navigation listener attached');
+          } else {
+            console.error('❌ Health Programs nav button not found!');
+          }
+        }
+        
+        // Setup navigation after a delay to ensure DOM is ready
+        setTimeout(setupNavigation, 500);
+        
+        // Custom message handlers for program navigation
+        Shiny.addCustomMessageHandler('hideHealthPrograms', function(message) {
+          console.log('🔄 Hiding health programs section');
+          const programsSection = document.querySelector('.health-programs-section');
+          const pregnancySection = document.querySelector('.pregnancy-program-container');
+          const inputArea = document.querySelector('.chat-input-area');
+          const recentChatsSection = document.querySelector('.recent-section');
+          
+          if (programsSection) programsSection.style.display = 'none';
+          if (inputArea) inputArea.style.display = 'none';
+          if (recentChatsSection) recentChatsSection.style.display = 'none';
+        });
+        
+        Shiny.addCustomMessageHandler('showPregnancyProgram', function(message) {
+          console.log('🔄 Showing pregnancy program section');
+          const pregnancySection = document.querySelector('.pregnancy-program-container');
+          const messagesArea = document.querySelector('.chat-messages');
+          const welcomeSection = document.querySelector('.welcome-section');
+          const mainTitle = document.querySelector('.chat-title');
+          
+          if (pregnancySection) pregnancySection.style.display = 'block';
+          if (messagesArea) messagesArea.style.display = 'none';
+          if (welcomeSection) welcomeSection.style.display = 'none';
+          if (mainTitle) mainTitle.textContent = '9 Months with Baho';
+          
+          // Scroll to top
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        Shiny.addCustomMessageHandler('showHealthPrograms', function(message) {
+          console.log('🔄 Showing health programs section');
+          const programsSection = document.querySelector('.health-programs-section');
+          const pregnancySection = document.querySelector('.pregnancy-program-container');
+          const dashboardSection = document.querySelector('.pregnancy-dashboard');
+          const inputArea = document.querySelector('.chat-input-area');
+          const recentChatsSection = document.querySelector('.recent-section');
+          const messagesArea = document.querySelector('.chat-messages');
+          const welcomeSection = document.querySelector('.welcome-section');
+          
+          if (pregnancySection) pregnancySection.style.display = 'none';
+          if (dashboardSection) dashboardSection.style.display = 'none';
+          if (programsSection) programsSection.style.display = 'block';
+          if (inputArea) inputArea.style.display = 'none';
+          if (recentChatsSection) recentChatsSection.style.display = 'none';
+          if (messagesArea) messagesArea.style.display = 'none';
+          if (welcomeSection) welcomeSection.style.display = 'none';
+        });
+        
+        Shiny.addCustomMessageHandler('showPregnancyDashboard', function(message) {
+          console.log('🔄 Showing pregnancy dashboard');
+          const dashboardSection = document.querySelector('.pregnancy-dashboard');
+          const programsSection = document.querySelector('.health-programs-section');
+          const pregnancySection = document.querySelector('.pregnancy-program-container');
+          const messagesArea = document.querySelector('.chat-messages');
+          const welcomeSection = document.querySelector('.welcome-section');
+          const inputArea = document.querySelector('.chat-input-area');
+          const recentChatsSection = document.querySelector('.recent-section');
+          const mainTitle = document.querySelector('.chat-title');
+          
+          if (dashboardSection) dashboardSection.style.display = 'block';
+          if (programsSection) programsSection.style.display = 'none';
+          if (pregnancySection) pregnancySection.style.display = 'none';
+          if (messagesArea) messagesArea.style.display = 'none';
+          if (welcomeSection) welcomeSection.style.display = 'none';
+          if (inputArea) inputArea.style.display = 'none';
+          if (recentChatsSection) recentChatsSection.style.display = 'none';
+          if (mainTitle) mainTitle.textContent = 'My Pregnancy Journey';
+          
+          // Scroll to top
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
         
         // Auto-resize textarea
         if (finalMessageInput) {
@@ -431,7 +821,7 @@ chatModuleUI <- function(id) {
                  // User messages stay plain text
                  messageTextDiv.textContent = content;
                }
-               finalMessagesContainer.scrollTop = finalMessagesContainer.scrollHeight;
+             finalMessagesContainer.scrollTop = finalMessagesContainer.scrollHeight;
              }
            }
          }
@@ -862,7 +1252,7 @@ chatModuleServer <- function(id, auth_module = NULL) {
     tryCatch({
       db_conn <<- db_connect()
       if (!is.null(db_conn)) {
-        cat("✅ Chat: Database connection successful!\n")
+      cat("✅ Chat: Database connection successful!\n")
       } else {
         cat("❌ Chat: Database connection returned NULL\n")
       }
@@ -883,14 +1273,14 @@ chatModuleServer <- function(id, auth_module = NULL) {
         # Minimal delay to ensure DOM is ready (50ms)
         shinyjs::delay(50, {
           cat("🔄 Delayed execution starting...\n")
-          # Update user profile in UI
-          update_user_profile()
-          
+        # Update user profile in UI
+        update_user_profile()
+        
           # Set user and session IDs in data attributes
           shinyjs::runjs(sprintf("document.body.setAttribute('data-user-id', '%s');", current_user$user_id))
           
           # Load sessions list and create a fresh new session (without loading history)
-          load_user_sessions()
+        load_user_sessions()
           initialize_new_session()
         })
       }
@@ -909,7 +1299,7 @@ chatModuleServer <- function(id, auth_module = NULL) {
         
         # Update user location
         location <- ifelse(!is.na(current_user$location) && current_user$location != "", 
-                          current_user$location, "Kigali, Rwanda")
+                           current_user$location, "Kigali, Rwanda")
         session$sendCustomMessage("updateUserLocation", list(
           location = location
         ))
@@ -1037,6 +1427,132 @@ chatModuleServer <- function(id, auth_module = NULL) {
       }
     }
     
+    # Initialize Pregnancy Program Module
+    pregnancyProgramServer("pregnancy_program", reactive(current_user), reactive(db_conn))
+    
+    # Initialize Pregnancy Dashboard Module
+    pregnancyDashboardServer("pregnancy_dashboard", reactive(current_user), reactive(db_conn))
+    
+    # Initialize Child Health Module
+    childHealthServer("child_health", reactive(current_user), reactive(db_conn))
+    
+    # Update program cards based on enrollment status
+    update_program_status <- function() {
+      if (!is.null(db_conn) && !is.null(current_user)) {
+        tryCatch({
+          # Check for 9 Months with Baho enrollment
+          maternal_data <- db_functions$get_maternal_health_data(db_conn, current_user$user_id)
+          
+          if (!is.null(maternal_data) && nrow(maternal_data) > 0) {
+            # User is enrolled - update button
+            shinyjs::runjs(sprintf("
+              const btn = document.getElementById('%s');
+              if (btn) {
+                const span = btn.querySelector('span');
+                if (span) {
+                  span.innerHTML = 'View Dashboard <i class=\"fas fa-arrow-right\"></i>';
+                }
+                
+                // Add enrolled badge to card
+                const card = document.getElementById('%s');
+                if (card && !card.querySelector('.enrolled-badge')) {
+                  const badge = document.createElement('div');
+                  badge.className = 'enrolled-badge';
+                  badge.innerHTML = '<i class=\"fas fa-check-circle\"></i> Enrolled';
+                  badge.style.cssText = 'position: absolute; top: 1rem; right: 1rem; background: linear-gradient(135deg, #48BB78, #38A169); color: white; padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);';
+                  card.style.position = 'relative';
+                  card.appendChild(badge);
+                }
+              }
+            ", ns("enroll_9months"), ns("program_9months")))
+          }
+        }, error = function(e) {
+          cat("❌ Error updating program status:", e$message, "\n")
+        })
+      }
+    }
+    
+    # Update program status when user data is available
+    observe({
+      req(current_user)
+      req(db_conn)
+      shinyjs::delay(500, update_program_status())
+    })
+    
+    # Handle Program Enrollment Buttons
+    
+    # 1000 Days with Baho
+    observeEvent(input$enroll_1000days, {
+      cat("📝 User clicked on 1000 Days with Baho enrollment\n")
+      
+      # Hide health programs section
+      session$sendCustomMessage("hideHealthPrograms", list())
+      
+      # Show child health enrollment
+      shinyjs::runjs("
+        const childContainer = document.querySelector('.child-health-container');
+        if (childContainer) childContainer.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      ")
+    })
+    
+    # 9 Months with Baho
+    observeEvent(input$enroll_9months, {
+      cat("📝 User clicked on 9 Months with Baho enrollment\n")
+      
+      # Check if user is already enrolled
+      if (!is.null(db_conn) && !is.null(current_user)) {
+        tryCatch({
+          # Check for existing enrollment
+          maternal_data <- db_functions$get_maternal_health_data(db_conn, current_user$user_id)
+          
+          if (!is.null(maternal_data) && nrow(maternal_data) > 0) {
+            cat("✅ User already enrolled, redirecting to dashboard\n")
+            
+            # Hide health programs section
+            session$sendCustomMessage("hideHealthPrograms", list())
+            
+            # Show dashboard directly
+            session$sendCustomMessage("showPregnancyDashboard", list())
+            
+            showNotification(
+              "Welcome back to your pregnancy dashboard!", 
+              type = "message", 
+              duration = 3
+            )
+          } else {
+            cat("📝 No enrollment found, showing enrollment form\n")
+            
+            # Hide health programs section
+            session$sendCustomMessage("hideHealthPrograms", list())
+            
+            # Show pregnancy program enrollment
+            session$sendCustomMessage("showPregnancyProgram", list())
+          }
+        }, error = function(e) {
+          cat("❌ Error checking enrollment:", e$message, "\n")
+          
+          # Default to showing enrollment form
+          session$sendCustomMessage("hideHealthPrograms", list())
+          session$sendCustomMessage("showPregnancyProgram", list())
+        })
+      } else {
+        # No database connection or user, show enrollment form
+        session$sendCustomMessage("hideHealthPrograms", list())
+        session$sendCustomMessage("showPregnancyProgram", list())
+      }
+    })
+    
+    observeEvent(input$enroll_1000days, {
+      cat("📝 User clicked on 1000 Days with Baho enrollment\n")
+      showNotification("1000 Days with Baho - Coming Soon!", type = "message", duration = 3)
+    })
+    
+    observeEvent(input$enroll_bahoforlife, {
+      cat("📝 User clicked on Baho for Life enrollment\n")
+      showNotification("Baho for Life - Coming Soon!", type = "message", duration = 3)
+    })
+    
     # Initialize a new session (without loading history)
     initialize_new_session <- function() {
       # Retry database connection if needed
@@ -1052,8 +1568,8 @@ chatModuleServer <- function(id, auth_module = NULL) {
       if (!is.null(db_conn) && !is.null(current_user)) {
         tryCatch({
           # Always create a fresh new session on login
-          current_session_id <<- db_functions$create_chat_session(db_conn, current_user$user_id, "New Chat")
-          cat("✅ Created new session:", current_session_id, "\n")
+            current_session_id <<- db_functions$create_chat_session(db_conn, current_user$user_id, "New Chat")
+            cat("✅ Created new session:", current_session_id, "\n")
           # Set session ID in data attribute
           shinyjs::runjs(sprintf("document.body.setAttribute('data-session-id', '%s');", current_session_id))
           # Don't load any history - start with clean chat
@@ -1090,6 +1606,40 @@ chatModuleServer <- function(id, auth_module = NULL) {
     observeEvent(input$new_chat, {
       if (!is.null(db_conn) && !is.null(current_user)) {
         tryCatch({
+          # Hide all program interfaces and show chat
+          shinyjs::runjs("
+            // Hide all program-related sections
+            const programsSection = document.querySelector('.health-programs-section');
+            const pregnancyProgram = document.querySelector('.pregnancy-program-container');
+            const pregnancyDashboard = document.querySelector('.pregnancy-dashboard');
+            
+            if (programsSection) programsSection.style.display = 'none';
+            if (pregnancyProgram) pregnancyProgram.style.display = 'none';
+            if (pregnancyDashboard) pregnancyDashboard.style.display = 'none';
+            
+            // Show chat interface
+            const messagesArea = document.querySelector('.chat-messages');
+            const welcomeSection = document.querySelector('.welcome-section');
+            const inputArea = document.querySelector('.chat-input-area');
+            const recentChatsSection = document.querySelector('.recent-section');
+            
+            if (messagesArea) messagesArea.style.display = 'flex';
+            if (welcomeSection) welcomeSection.style.display = 'flex';
+            if (inputArea) inputArea.style.display = 'block';
+            if (recentChatsSection) recentChatsSection.style.display = 'block';
+            
+            // Update navigation active state
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            const navChats = document.querySelector('.nav-item-chats');
+            if (navChats) navChats.classList.add('active');
+            
+            // Update title
+            const mainTitle = document.querySelector('.chat-title');
+            if (mainTitle) mainTitle.textContent = 'Baho Health Assistant';
+            
+            console.log('✅ Switched to chat interface from new chat button');
+          ")
+          
           # Create new session
           current_session_id <<- db_functions$create_chat_session(
             db_conn,

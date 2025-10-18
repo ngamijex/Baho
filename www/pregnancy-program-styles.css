@@ -1,0 +1,600 @@
+/* ===== 9 MONTHS WITH BAHO - PREGNANCY PROGRAM STYLES ===== */
+
+/* Main Container */
+.pregnancy-program-container {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  background: #FFFFFF;
+  padding: 2rem;
+  display: none; /* Hidden by default */
+}
+
+/* Back Button */
+.program-back-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.75rem 1.25rem !important;
+  background: #F0F8FA !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 0.75rem !important;
+  color: #2B7A9B !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  margin-bottom: 2rem !important;
+}
+
+.program-back-btn:hover {
+  background: #E8F4F8 !important;
+  border-color: #2B7A9B !important;
+  transform: translateX(-4px) !important;
+}
+
+/* Program Header */
+.pregnancy-program-header {
+  max-width: 1400px;
+  margin: 0 auto 3rem;
+  text-align: center;
+}
+
+.pregnancy-program-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1A202C;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.pregnancy-program-subtitle {
+  font-size: 1.15rem;
+  color: #4A5568;
+  line-height: 1.7;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Enrollment Steps Container */
+.enrollment-steps-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Step Progress Indicator */
+.step-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  position: relative;
+  padding: 0 2rem;
+}
+
+.step-progress::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: #E2E8F0;
+  z-index: 0;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  max-width: 200px;
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #718096;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.step-item.active .step-circle {
+  background: linear-gradient(135deg, #2B7A9B, #4895C7);
+  border-color: #2B7A9B;
+  color: #FFFFFF;
+  box-shadow: 0 4px 15px rgba(43, 122, 155, 0.3);
+}
+
+.step-item.completed .step-circle {
+  background: #2B7A9B;
+  border-color: #2B7A9B;
+  color: #FFFFFF;
+}
+
+.step-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #718096;
+  text-align: center;
+}
+
+.step-item.active .step-label {
+  color: #2B7A9B;
+}
+
+.step-item.completed .step-label {
+  color: #2B7A9B;
+}
+
+/* Step Content Card */
+.step-content-card {
+  background: #FFFFFF;
+  border-radius: 1rem;
+  padding: 2.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #E2E8F0;
+  margin-bottom: 2rem;
+}
+
+.step-content-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1A202C;
+  margin-bottom: 0.5rem;
+}
+
+.step-content-description {
+  font-size: 1rem;
+  color: #4A5568;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+/* Form Groups */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2D3748;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-label .required {
+  color: #E53E3E;
+}
+
+.form-label i {
+  color: #2B7A9B;
+  font-size: 0.9rem;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.75rem;
+  background: #FFFFFF;
+  color: #1A202C;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #2B7A9B;
+  box-shadow: 0 0 0 3px rgba(43, 122, 155, 0.1);
+}
+
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-hint {
+  font-size: 0.85rem;
+  color: #718096;
+  font-style: italic;
+}
+
+/* Checkbox Group */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.checkbox-item:hover {
+  background: #F0F8FA;
+  border-color: #2B7A9B;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.checkbox-label {
+  font-size: 0.95rem;
+  color: #2D3748;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Info Cards */
+.info-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.info-card {
+  background: linear-gradient(135deg, #F0F8FA, #FFFFFF);
+  border: 1px solid #E2E8F0;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.info-card-icon {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 1rem;
+  background: linear-gradient(135deg, #2B7A9B, #4895C7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-size: 1.5rem;
+}
+
+.info-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1A202C;
+  margin-bottom: 0.5rem;
+}
+
+.info-card-text {
+  font-size: 0.9rem;
+  color: #4A5568;
+  line-height: 1.6;
+}
+
+/* Button Actions */
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #E2E8F0;
+}
+
+.btn-secondary {
+  padding: 0.875rem 1.75rem !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  border-radius: 0.75rem !important;
+  border: 1px solid #E2E8F0 !important;
+  background: #FFFFFF !important;
+  color: #4A5568 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.btn-secondary:hover {
+  background: #F0F8FA !important;
+  border-color: #2B7A9B !important;
+  color: #2B7A9B !important;
+}
+
+.btn-primary {
+  padding: 0.875rem 2rem !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  border-radius: 0.75rem !important;
+  border: none !important;
+  background: linear-gradient(135deg, #2B7A9B, #4895C7) !important;
+  color: #FFFFFF !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(43, 122, 155, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(43, 122, 155, 0.4) !important;
+}
+
+/* Success Message */
+.enrollment-success {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, #48BB78, #38A169);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-size: 3rem;
+}
+
+.success-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1A202C;
+  margin-bottom: 1rem;
+}
+
+.success-message {
+  font-size: 1.1rem;
+  color: #4A5568;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .info-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .pregnancy-program-container {
+    padding: 1.5rem 1rem;
+  }
+  
+  .pregnancy-program-title {
+    font-size: 2rem;
+  }
+  
+  .pregnancy-program-subtitle {
+    font-size: 1rem;
+  }
+  
+  .step-progress {
+    padding: 0;
+    margin-bottom: 2rem;
+  }
+  
+  .step-circle {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+  
+  .step-label {
+    font-size: 0.8rem;
+  }
+  
+  .step-content-card {
+    padding: 1.5rem;
+  }
+  
+  .step-content-title {
+    font-size: 1.5rem;
+  }
+  
+  .info-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .step-actions {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .btn-secondary,
+  .btn-primary {
+    width: 100%;
+    justify-content: center !important;
+  }
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+
+.dark-mode .pregnancy-program-container {
+  background: #212121 !important;
+}
+
+.dark-mode .program-back-btn {
+  background: #333333 !important;
+  border-color: #444444 !important;
+  color: #FFFFFF !important;
+}
+
+.dark-mode .program-back-btn:hover {
+  background: #444444 !important;
+  border-color: #2B7A9B !important;
+}
+
+.dark-mode .pregnancy-program-title {
+  color: #FFFFFF !important;
+}
+
+.dark-mode .pregnancy-program-subtitle {
+  color: #FFFFFF !important;
+  opacity: 0.9;
+}
+
+.dark-mode .step-progress::before {
+  background: #444444 !important;
+}
+
+.dark-mode .step-circle {
+  background: #333333 !important;
+  border-color: #444444 !important;
+  color: #FFFFFF !important;
+}
+
+.dark-mode .step-label {
+  color: #FFFFFF !important;
+  opacity: 0.8;
+}
+
+.dark-mode .step-content-card {
+  background: #333333 !important;
+  border-color: #444444 !important;
+}
+
+.dark-mode .step-content-title {
+  color: #FFFFFF !important;
+}
+
+.dark-mode .step-content-description {
+  color: #FFFFFF !important;
+  opacity: 0.9;
+}
+
+.dark-mode .form-label {
+  color: #FFFFFF !important;
+}
+
+.dark-mode .form-input,
+.dark-mode .form-select,
+.dark-mode .form-textarea {
+  background: #212121 !important;
+  border-color: #444444 !important;
+  color: #FFFFFF !important;
+}
+
+.dark-mode .form-input:focus,
+.dark-mode .form-select:focus,
+.dark-mode .form-textarea:focus {
+  border-color: #2B7A9B !important;
+}
+
+.dark-mode .form-hint {
+  color: #FFFFFF !important;
+  opacity: 0.7;
+}
+
+.dark-mode .checkbox-item {
+  border-color: #444444 !important;
+  background: #212121 !important;
+}
+
+.dark-mode .checkbox-item:hover {
+  background: #333333 !important;
+}
+
+.dark-mode .checkbox-label {
+  color: #FFFFFF !important;
+}
+
+.dark-mode .info-card {
+  background: #333333 !important;
+  border-color: #444444 !important;
+}
+
+.dark-mode .info-card-title {
+  color: #FFFFFF !important;
+}
+
+.dark-mode .info-card-text {
+  color: #FFFFFF !important;
+  opacity: 0.9;
+}
+
+.dark-mode .step-actions {
+  border-top-color: #444444 !important;
+}
+
+.dark-mode .btn-secondary {
+  background: #333333 !important;
+  border-color: #444444 !important;
+  color: #FFFFFF !important;
+}
+
+.dark-mode .btn-secondary:hover {
+  background: #444444 !important;
+  border-color: #2B7A9B !important;
+}
+
+.dark-mode .success-title {
+  color: #FFFFFF !important;
+}
+
+.dark-mode .success-message {
+  color: #FFFFFF !important;
+  opacity: 0.9;
+}
+
+/* System theme detection */
+@media (prefers-color-scheme: dark) {
+  .pregnancy-program-container {
+    background: #212121;
+  }
+  
+  .step-content-card {
+    background: #333333;
+    border-color: #444444;
+  }
+  
+  .pregnancy-program-title,
+  .step-content-title,
+  .form-label {
+    color: #FFFFFF;
+  }
+}
+
