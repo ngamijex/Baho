@@ -28,90 +28,102 @@ chatModuleUI <- function(id) {
       tags$div(
         class = "chat-sidebar",
         
-        # Brand Section
+        # Sidebar Header (fixed at top)
         tags$div(
-          class = "sidebar-brand",
+          class = "sidebar-header",
+          # Brand Section
           tags$div(
-            class = "brand-content",
-            tags$img(src = "baho.png", alt = "Baho", class = "sidebar-logo")
-          )
-        ),
-        
-        # New Chat Button
-        tags$div(
-          class = "new-chat-section",
-          actionButton(
-            inputId = ns("new_chat"),
-            label = tags$div(
-              class = "new-chat-content",
-              tags$div(
-                class = "new-chat-icon",
-                tags$span(class = "icon-plus")
+            class = "sidebar-brand",
+            tags$div(
+              class = "brand-content",
+              tags$img(src = "baho.png", alt = "Baho", class = "sidebar-logo")
+            )
+          ),
+          
+          # New Chat Button
+          tags$div(
+            class = "new-chat-section",
+            actionButton(
+              inputId = ns("new_chat"),
+              label = tags$div(
+                class = "new-chat-content",
+                tags$div(
+                  class = "new-chat-icon",
+                  tags$span(class = "icon-plus")
+                ),
+                tags$span("New chat")
               ),
-              tags$span("New chat")
-            ),
-            class = "new-chat-btn"
-          )
-        ),
-        
-        # Navigation Menu
-        tags$nav(
-          class = "sidebar-nav",
-          tags$ul(
-            class = "nav-list",
-            tags$li(
-              tags$a(
-                href = "#",
-                class = "nav-item active",
-                tags$span(class = "nav-icon", tags$span(class = "icon-chat")),
-                tags$span("Chats")
-              )
-            ),
-            tags$li(
-              tags$a(
-                href = "#",
-                class = "nav-item",
-                tags$span(class = "nav-icon", tags$span(class = "icon-projects")),
-                tags$span("Health Programs")
-              )
-            ),
-            tags$li(
-              tags$a(
-                href = "#",
-                class = "nav-item",
-                tags$span(class = "nav-icon", tags$span(class = "icon-settings")),
-                tags$span("Settings")
+              class = "new-chat-btn"
+            )
+          ),
+          
+          # Navigation Menu
+          tags$nav(
+            class = "sidebar-nav",
+            tags$ul(
+              class = "nav-list",
+              tags$li(
+                tags$a(
+                  href = "#",
+                  class = "nav-item active",
+                  tags$span(class = "nav-icon", tags$span(class = "icon-chat")),
+                  tags$span("Chats")
+                )
+              ),
+              tags$li(
+                tags$a(
+                  href = "#",
+                  class = "nav-item",
+                  tags$span(class = "nav-icon", tags$span(class = "icon-projects")),
+                  tags$span("Health Programs")
+                )
+              ),
+              tags$li(
+                tags$a(
+                  href = "#",
+                  class = "nav-item",
+                  tags$span(class = "nav-icon", tags$span(class = "icon-settings")),
+                  tags$span("Settings")
+                )
               )
             )
           )
         ),
         
-        # Recent Chats Section
+        # Sidebar Content (scrollable)
         tags$div(
-          class = "recent-section",
-          tags$h3(class = "section-title", "Recent Charts"),
+          class = "sidebar-content",
+          # Recent Chats Section
           tags$div(
-            class = "recent-chats",
-            id = ns("recent_chats_list")
-            # Will be populated dynamically
+            class = "recent-section",
+            tags$h3(class = "section-title", "Recent Chats"),
+            tags$div(
+              class = "recent-chats",
+              id = ns("recent_chats_list")
+              # Will be populated dynamically
+            )
           )
         ),
         
-        # User Profile Section
+        # Sidebar Footer (fixed at bottom)
         tags$div(
-          class = "user-profile",
+          class = "sidebar-footer",
+          # User Profile Section
           tags$div(
-            class = "profile-avatar",
-            tags$span(id = ns("user_avatar"), "U")
-          ),
-          tags$div(
-            class = "profile-info",
-            tags$span(class = "profile-name", id = ns("user_name"), "User"),
-            tags$span(class = "profile-plan", id = ns("user_location"), "Kigali, Rwanda")
-          ),
-          tags$button(
-            class = "profile-dropdown",
-            tags$span(class = "icon-chevron-down")
+            class = "user-profile",
+            tags$div(
+              class = "profile-avatar",
+              tags$span(id = ns("user_avatar"), "U")
+            ),
+            tags$div(
+              class = "profile-info",
+              tags$span(class = "profile-name", id = ns("user_name"), "User"),
+              tags$span(class = "profile-plan", id = ns("user_location"), "Kigali, Rwanda")
+            ),
+            tags$button(
+              class = "profile-dropdown",
+              tags$span(class = "icon-chevron-down")
+            )
           )
         )
       ),
@@ -436,23 +448,58 @@ chatModuleUI <- function(id) {
         
         // Handle user profile updates
         Shiny.addCustomMessageHandler('updateUserName', function(message) {
-          const userNameElement = document.getElementById('", ns("user_name"), "');
+          console.log('📝 Received updateUserName:', message.name);
+          console.log('Looking for element with ID:', '", ns("user_name"), "');
+          
+          // Try multiple approaches to find the element
+          let userNameElement = document.getElementById('", ns("user_name"), "');
+          
+          if (!userNameElement) {
+            // Try querySelector as backup
+            userNameElement = document.querySelector('.profile-name');
+            console.log('Trying querySelector .profile-name:', userNameElement);
+          }
+          
           if (userNameElement) {
             userNameElement.textContent = message.name;
+            console.log('✅ Updated user name to:', message.name);
+          } else {
+            console.log('❌ User name element not found');
+            console.log('All elements with profile-name class:', document.querySelectorAll('.profile-name'));
           }
         });
         
         Shiny.addCustomMessageHandler('updateUserLocation', function(message) {
-          const userLocationElement = document.getElementById('", ns("user_location"), "');
+          console.log('📝 Received updateUserLocation:', message.location);
+          let userLocationElement = document.getElementById('", ns("user_location"), "');
+          
+          if (!userLocationElement) {
+            userLocationElement = document.querySelector('.profile-plan');
+            console.log('Trying querySelector .profile-plan:', userLocationElement);
+          }
+          
           if (userLocationElement) {
             userLocationElement.textContent = message.location;
+            console.log('✅ Updated user location to:', message.location);
+          } else {
+            console.log('❌ User location element not found');
           }
         });
         
         Shiny.addCustomMessageHandler('updateUserAvatar', function(message) {
-          const userAvatarElement = document.getElementById('", ns("user_avatar"), "');
+          console.log('📝 Received updateUserAvatar:', message.avatar);
+          let userAvatarElement = document.getElementById('", ns("user_avatar"), "');
+          
+          if (!userAvatarElement) {
+            userAvatarElement = document.querySelector('.profile-avatar span');
+            console.log('Trying querySelector .profile-avatar span:', userAvatarElement);
+          }
+          
           if (userAvatarElement) {
             userAvatarElement.textContent = message.avatar;
+            console.log('✅ Updated user avatar to:', message.avatar);
+          } else {
+            console.log('❌ User avatar element not found');
           }
         });
         
@@ -476,8 +523,13 @@ chatModuleUI <- function(id) {
         
         // Handle loading existing messages
         Shiny.addCustomMessageHandler('loadMessages', function(message) {
+          console.log('📨 Received loadMessages:', message);
+          console.log('Number of messages:', message.messages ? message.messages.length : 0);
+          
           const messagesContainer = document.querySelector('.chat-messages');
           if (messagesContainer && message.messages && message.messages.length > 0) {
+            console.log('✅ Loading', message.messages.length, 'messages');
+            
             // Show chat area if there are existing messages
             messagesContainer.classList.add('active');
             
@@ -494,8 +546,17 @@ chatModuleUI <- function(id) {
             }
             
             // Add existing messages
-            message.messages.forEach(function(msg) {
+            message.messages.forEach(function(msg, index) {
+              console.log('Adding message', index + 1, ':', msg.sender, '-', msg.content.substring(0, 50) + '...');
               addMessage(msg.content, msg.sender);
+            });
+            
+            console.log('✅ All messages loaded successfully');
+          } else {
+            console.log('❌ Cannot load messages:', {
+              container: !!messagesContainer,
+              messages: !!message.messages,
+              length: message.messages ? message.messages.length : 0
             });
           }
         });
@@ -533,32 +594,121 @@ chatModuleUI <- function(id) {
          });
          
          // Handle update recent chats
+         // Show loading indicator for recent chats
+         Shiny.addCustomMessageHandler('showRecentChatsLoader', function(data) {
+           let recentChatsContainer = document.getElementById('", ns("recent_chats_list"), "');
+           if (!recentChatsContainer) {
+             recentChatsContainer = document.querySelector('.recent-chats');
+           }
+           
+           if (recentChatsContainer) {
+             recentChatsContainer.innerHTML = `
+               <div class='recent-chats-loader'>
+                 <div class='recent-chats-spinner'></div>
+                 <div class='recent-chats-loader-text'>Loading your chats...</div>
+               </div>
+             `;
+           }
+         });
+         
          Shiny.addCustomMessageHandler('updateRecentChats', function(data) {
-           const recentChatsContainer = document.getElementById('", ns("recent_chats_list"), "');
+           console.log('📂 Received updateRecentChats:', data);
+           console.log('Looking for element with ID:', '", ns("recent_chats_list"), "');
+           
+           // Try multiple approaches to find the container
+           let recentChatsContainer = document.getElementById('", ns("recent_chats_list"), "');
+           
+           if (!recentChatsContainer) {
+             recentChatsContainer = document.querySelector('.recent-chats');
+             console.log('Trying querySelector .recent-chats:', recentChatsContainer);
+           }
+           
+           console.log('Recent chats container:', recentChatsContainer);
+           
            if (recentChatsContainer && data.sessions) {
+             console.log('Updating', data.sessions.length, 'sessions');
              recentChatsContainer.innerHTML = '';
              
-             data.sessions.forEach(function(session) {
+             data.sessions.forEach(function(session, index) {
+               console.log('Adding session', index + 1, ':', session.session_name, '(ID:', session.session_id, ')');
                const chatItem = document.createElement('div');
                chatItem.className = 'recent-chat-item';
                chatItem.setAttribute('data-session-id', session.session_id);
+               chatItem.style.cursor = 'pointer'; // Make sure it's clickable
                chatItem.innerHTML = `
                  <div class='chat-item-icon'>
-                   <span class='icon-chat'></span>
+                   <i class='fas fa-comment-dots'></i>
                  </div>
                  <div class='chat-item-content'>
                    <div class='chat-item-title'>${session.session_name}</div>
                    <div class='chat-item-time'>${session.last_active}</div>
                  </div>
+                 <div class='chat-item-actions'>
+                   <button class='chat-delete-btn' data-session-id='${session.session_id}' title='Delete chat'>
+                     <i class='fas fa-trash-alt'></i>
+                   </button>
+                 </div>
                `;
                
-               chatItem.addEventListener('click', function() {
-                 const sessionId = this.getAttribute('data-session-id');
-                 Shiny.setInputValue('", ns("load_session"), "', sessionId, {priority: 'event'});
+               // Add hover effect
+               chatItem.addEventListener('mouseenter', function() {
+                 console.log('🖱️ Hovering over session:', session.session_name);
+               });
+               
+               // Handle delete button click
+               const deleteBtn = chatItem.querySelector('.chat-delete-btn');
+               deleteBtn.addEventListener('click', function(e) {
+                 e.stopPropagation(); // Prevent triggering the chat item click
+                 console.log('🗑️ Delete button clicked for session:', session.session_id);
+                 
+                 // Confirm deletion
+                 if (confirm('Are you sure you want to delete this chat?')) {
+                   try {
+                     Shiny.setInputValue('global_delete_session', {
+                       session_id: session.session_id,
+                       timestamp: Date.now()
+                     }, {priority: 'event'});
+                     console.log('✅ Delete request sent for session:', session.session_id);
+                   } catch (err) {
+                     console.error('❌ Error deleting session:', err);
+                   }
+                 }
+               });
+               
+               chatItem.addEventListener('click', function(e) {
+                 // Don't trigger if clicking on delete button
+                 if (e.target.closest('.chat-delete-btn')) return;
+                 
+                 console.log('🖱️ Chat item clicked! Session:', session.session_name);
+                 console.log('Session ID:', session.session_id);
+                 
+                 try {
+                   // Use GLOBAL input (not module-scoped)
+                   const inputValue = {
+                     session_id: session.session_id,
+                     timestamp: Date.now()
+                   };
+                   Shiny.setInputValue('global_load_session', inputValue, {priority: 'event'});
+                   console.log('✅ Global method - Shiny.setInputValue called with:', inputValue);
+                 } catch (err) {
+                   console.error('❌ Error:', err);
+                 }
                });
                
                recentChatsContainer.appendChild(chatItem);
+               console.log('✅ Session', index + 1, 'added to DOM');
              });
+             console.log('✅ Recent chats updated successfully');
+           } else {
+             if (!recentChatsContainer) {
+               console.log('❌ Recent chats container not found');
+               console.log('Available elements with .recent-chats class:', document.querySelectorAll('.recent-chats'));
+             }
+             if (!data.sessions) {
+               console.log('❌ No sessions data');
+             } else if (data.sessions.length === 0) {
+               console.log('ℹ️ User has no chat sessions yet');
+             }
            }
          });
          
@@ -578,6 +728,13 @@ chatModuleUI <- function(id) {
            if (quickActions) {
              quickActions.style.display = 'flex';
            }
+         });
+         
+         // Handle set session ID
+         Shiny.addCustomMessageHandler('setSessionId', function(data) {
+           console.log('📂 Setting session ID:', data.session_id);
+           document.body.setAttribute('data-session-id', data.session_id);
+           console.log('✅ Session ID attribute set');
          });
        }
        
@@ -607,109 +764,204 @@ chatModuleServer <- function(id, auth_module = NULL) {
     # Initialize database connection
     tryCatch({
       db_conn <<- db_connect()
+      if (!is.null(db_conn)) {
+        cat("✅ Chat: Database connection successful!\n")
+      } else {
+        cat("❌ Chat: Database connection returned NULL\n")
+      }
     }, error = function(e) {
+      cat("❌ Chat: Database connection error:", e$message, "\n")
       db_conn <<- NULL
     })
     
-    # Get current user from auth module
-    if (!is.null(auth_module)) {
-      current_user <<- auth_module$get_current_user()
-      if (!is.null(current_user)) {
-        # Update user profile in UI
-        update_user_profile()
+    # Get current user from auth module - observe the reactive
+    observe({
+      req(auth_module)
+      user <- auth_module$get_current_user()
+      
+      if (!is.null(user)) {
+        current_user <<- user
+        cat("✅ Current user loaded:", current_user$username, "\n")
         
-        # Set user and session IDs in data attributes
-        shinyjs::runjs(sprintf("document.body.setAttribute('data-user-id', '%s');", current_user$user_id))
-        
-        load_user_sessions()
-        load_latest_session()
+        # Minimal delay to ensure DOM is ready (50ms)
+        shinyjs::delay(50, {
+          cat("🔄 Delayed execution starting...\n")
+          # Update user profile in UI
+          update_user_profile()
+          
+          # Set user and session IDs in data attributes
+          shinyjs::runjs(sprintf("document.body.setAttribute('data-user-id', '%s');", current_user$user_id))
+          
+          # Load sessions list and create a fresh new session (without loading history)
+          load_user_sessions()
+          initialize_new_session()
+        })
       }
-    }
+    })
     
     # Function to update user profile in UI
     update_user_profile <- function() {
       if (!is.null(current_user)) {
+        cat("📝 Updating user profile for:", current_user$username, "\n")
+        
         # Update user name
         session$sendCustomMessage("updateUserName", list(
           name = current_user$username
         ))
+        cat("✅ Sent updateUserName:", current_user$username, "\n")
         
         # Update user location
+        location <- ifelse(!is.na(current_user$location) && current_user$location != "", 
+                          current_user$location, "Kigali, Rwanda")
         session$sendCustomMessage("updateUserLocation", list(
-          location = ifelse(!is.na(current_user$location) && current_user$location != "", 
-                           current_user$location, "Kigali, Rwanda")
+          location = location
         ))
+        cat("✅ Sent updateUserLocation:", location, "\n")
         
         # Update user avatar (first two letters of username)
         avatar_text <- toupper(substr(current_user$username, 1, 2))
         session$sendCustomMessage("updateUserAvatar", list(
           avatar = avatar_text
         ))
-        
+        cat("✅ Sent updateUserAvatar:", avatar_text, "\n")
       }
     }
     
     
     # Load user sessions
     load_user_sessions <- function() {
+      # Show loading indicator first
+      session$sendCustomMessage("showRecentChatsLoader", list())
+      
+      # Retry database connection if needed
+      if (is.null(db_conn)) {
+        cat("🔄 Retrying database connection...\n")
+        tryCatch({
+          db_conn <<- db_connect()
+          if (!is.null(db_conn)) {
+            cat("✅ Chat: Database reconnection successful!\n")
+          }
+        }, error = function(e) {
+          cat("❌ Chat: Database reconnection failed:", e$message, "\n")
+        })
+      }
+      
       if (!is.null(db_conn) && !is.null(current_user)) {
         tryCatch({
+          cat("📂 Loading sessions for user:", current_user$user_id, "\n")
           chat_sessions <<- db_functions$get_user_sessions(db_conn, current_user$user_id)
+          cat("📂 Found", nrow(chat_sessions), "sessions\n")
           
           # Update recent chats in UI
           if (nrow(chat_sessions) > 0) {
-            # Get first message for each session to use as title
+            # OPTIMIZATION: Get all first messages in ONE query using IN clause
+            first_msg_map <- list()
+            tryCatch({
+              cat("🔍 Fetching first messages for", nrow(chat_sessions), "sessions\n")
+              
+              # Create placeholders for IN clause: $1, $2, $3, ...
+              placeholders <- paste0("$", 1:nrow(chat_sessions), collapse = ", ")
+              first_messages_query <- sprintf("
+                SELECT DISTINCT ON (m.session_id) 
+                  m.session_id, 
+                  m.content as first_message
+                FROM public.messages m
+                WHERE m.session_id IN (%s) AND m.sender = 'user'
+                ORDER BY m.session_id, m.created_at ASC
+              ", placeholders)
+              
+              # Pass session IDs as separate parameters
+              first_messages <- dbGetQuery(db_conn, first_messages_query, 
+                                          params = as.list(chat_sessions$session_id))
+              
+              cat("✅ Fetched", nrow(first_messages), "first messages\n")
+              
+              # Create a lookup map for fast access
+              if (nrow(first_messages) > 0) {
+                first_msg_map <- setNames(first_messages$first_message, first_messages$session_id)
+                cat("✅ Created lookup map with", length(first_msg_map), "entries\n")
+              }
+            }, error = function(e) {
+              cat("⚠️ Could not fetch first messages in batch:", e$message, "\n")
+            })
+            
+            # Now create titles using the pre-fetched data
             sessions_with_titles <- lapply(1:nrow(chat_sessions), function(i) {
               session_row <- chat_sessions[i, ]
-              # Get first message from session
-              messages <- db_functions$get_session_messages(db_conn, session_row$session_id)
               
-              # Extract title from first user message (first 5 words)
-              title <- session_row$session_name
-              if (nrow(messages) > 0) {
-                first_user_msg <- messages$content[messages$sender == "user"][1]
-                if (!is.na(first_user_msg)) {
-                  words <- strsplit(first_user_msg, " ")[[1]]
-                  title <- paste(words[1:min(5, length(words))], collapse = " ")
-                  if (length(words) > 5) title <- paste0(title, "...")
+              # Try to get first message from our batch query (safely)
+              first_msg <- tryCatch({
+                if (length(first_msg_map) > 0 && session_row$session_id %in% names(first_msg_map)) {
+                  first_msg_map[[session_row$session_id]]
+                } else {
+                  NULL
                 }
-              }
+              }, error = function(e) NULL)
+              
+              # Generate title
+              title <- tryCatch({
+                if (!is.null(first_msg) && !is.na(first_msg) && nchar(first_msg) > 0) {
+                  words <- strsplit(first_msg, " ")[[1]]
+                  if (length(words) > 0) {
+                    msg_title <- paste(words[1:min(5, length(words))], collapse = " ")
+                    if (length(words) > 5) msg_title <- paste0(msg_title, "...")
+                    msg_title
+                  } else {
+                    "New Chat"
+                  }
+                } else if (!is.na(session_row$session_name) && nchar(session_row$session_name) > 0 && session_row$session_name != "New Chat") {
+                  session_row$session_name
+                } else {
+                  "New Chat"
+                }
+              }, error = function(e) {
+                "New Chat"
+              })
               
               list(
                 session_id = session_row$session_id,
                 session_name = title,
-                last_active = format(session_row$last_active, "%Y-%m-%d %H:%M")
+                last_active = format(session_row$created_at, "%Y-%m-%d %H:%M")
               )
             })
             
+            cat("✅ Sending updateRecentChats with", length(sessions_with_titles), "sessions\n")
             session$sendCustomMessage("updateRecentChats", list(
               sessions = sessions_with_titles
             ))
+          } else {
+            cat("ℹ️ No sessions found for user\n")
           }
         }, error = function(e) {
           cat("❌ Error loading user sessions:", e$message, "\n")
         })
+      } else {
+        cat("❌ Cannot load sessions: db_conn=", !is.null(db_conn), ", current_user=", !is.null(current_user), "\n")
       }
     }
     
-    # Load latest session
-    load_latest_session <- function() {
+    # Initialize a new session (without loading history)
+    initialize_new_session <- function() {
+      # Retry database connection if needed
+      if (is.null(db_conn)) {
+        cat("🔄 Retrying database connection for new session...\n")
+        tryCatch({
+          db_conn <<- db_connect()
+        }, error = function(e) {
+          cat("❌ Chat: Database reconnection failed\n")
+        })
+      }
+      
       if (!is.null(db_conn) && !is.null(current_user)) {
         tryCatch({
-          latest_session <- db_functions$get_latest_session(db_conn, current_user$user_id)
-          if (nrow(latest_session) > 0) {
-            current_session_id <<- latest_session$session_id
-            # Set session ID in data attribute
-            shinyjs::runjs(sprintf("document.body.setAttribute('data-session-id', '%s');", current_session_id))
-            load_chat_history()
-          } else {
-            # Create new session if none exist
-            current_session_id <<- db_functions$create_chat_session(db_conn, current_user$user_id, "New Chat")
-            # Set session ID in data attribute
-            shinyjs::runjs(sprintf("document.body.setAttribute('data-session-id', '%s');", current_session_id))
-          }
+          # Always create a fresh new session on login
+          current_session_id <<- db_functions$create_chat_session(db_conn, current_user$user_id, "New Chat")
+          cat("✅ Created new session:", current_session_id, "\n")
+          # Set session ID in data attribute
+          shinyjs::runjs(sprintf("document.body.setAttribute('data-session-id', '%s');", current_session_id))
+          # Don't load any history - start with clean chat
         }, error = function(e) {
-          cat("❌ Error loading latest session:", e$message, "\n")
+          cat("❌ Error creating new session:", e$message, "\n")
         })
       }
     }
@@ -763,17 +1015,59 @@ chatModuleServer <- function(id, auth_module = NULL) {
       }
     })
     
-    # Load specific session
-    observeEvent(input$load_session, {
-      if (!is.null(db_conn) && !is.null(input$load_session)) {
+    # Debug: Monitor all changes to load_session input
+    observe({
+      if (!is.null(input$load_session)) {
+        cat("🔍 DEBUG Method 1: input$load_session changed\n")
+        cat("  Type:", class(input$load_session), "\n")
+        cat("  Value:", toString(input$load_session), "\n")
+      }
+    })
+    
+    # Debug: Monitor alternative method
+    observe({
+      if (!is.null(input$load_session_direct)) {
+        cat("🔍 DEBUG Method 2: input$load_session_direct changed\n")
+        cat("  Type:", class(input$load_session_direct), "\n")
+        cat("  Value:", toString(input$load_session_direct), "\n")
+      }
+    })
+    
+    # Debug: Monitor socket method
+    observe({
+      if (!is.null(input$load_session_socket)) {
+        cat("🔍 DEBUG Method 3: input$load_session_socket changed\n")
+        cat("  Type:", class(input$load_session_socket), "\n")
+        cat("  Value:", toString(input$load_session_socket), "\n")
+      }
+    })
+    
+    # Helper function to load a session by ID
+    load_session_by_id <- function(session_id) {
+      cat("🔄 Loading session by ID:", session_id, "\n")
+      
+      # Retry database connection if needed
+      if (is.null(db_conn)) {
+        cat("🔄 Retrying database connection for session loading...\n")
         tryCatch({
-          current_session_id <<- input$load_session
+          db_conn <<- db_connect()
+        }, error = function(e) {
+          cat("❌ Database reconnection failed\n")
+          return()
+        })
+      }
+      
+      if (!is.null(db_conn)) {
+        tryCatch({
+          current_session_id <<- session_id
+          cat("✅ Loading session:", current_session_id, "\n")
           
           # Set session ID in data attribute
           shinyjs::runjs(sprintf("document.body.setAttribute('data-session-id', '%s');", current_session_id))
           
           # Load messages for this session
           messages <- db_functions$get_session_messages(db_conn, current_session_id)
+          cat("📨 Found", nrow(messages), "messages in session\n")
           
           # Clear UI and load messages
           session$sendCustomMessage("clearChat", list())
@@ -788,12 +1082,131 @@ chatModuleServer <- function(id, auth_module = NULL) {
                 timestamp = messages$created_at[i]
               )
             }
+            cat("✅ Sending", length(messages_list), "messages to UI\n")
             session$sendCustomMessage("loadMessages", list(messages = messages_list))
+          } else {
+            cat("ℹ️ No messages in this session\n")
           }
           
         }, error = function(e) {
           cat("❌ Error loading session:", e$message, "\n")
         })
+      } else {
+        cat("❌ Cannot load session: db_conn is NULL\n")
+      }
+    }
+    
+    # Observer for trigger_load (from global app via custom message)
+    observeEvent(input$trigger_load, {
+      cat("📂 Trigger load received in module\n")
+      req(input$trigger_load)
+      
+      session_id <- if (is.list(input$trigger_load)) {
+        input$trigger_load$session_id
+      } else {
+        input$trigger_load
+      }
+      
+      if (!is.null(session_id) && nzchar(session_id)) {
+        cat("✅ Triggering load_session_by_id with:", session_id, "\n")
+        load_session_by_id(session_id)
+      }
+    })
+    
+    # Alternative observer for load_session_direct
+    observeEvent(input$load_session_direct, {
+      cat("📂 Method 2 triggered - load_session_direct\n")
+      req(input$load_session_direct)
+      
+      session_id <- if (is.list(input$load_session_direct)) {
+        input$load_session_direct$session_id
+      } else {
+        input$load_session_direct
+      }
+      
+      if (!is.null(session_id) && nzchar(session_id)) {
+        load_session_by_id(session_id)
+      }
+    })
+    
+    # Alternative observer for load_session_socket
+    observeEvent(input$load_session_socket, {
+      cat("📂 Method 3 triggered - load_session_socket\n")
+      req(input$load_session_socket)
+      
+      session_id <- if (is.list(input$load_session_socket)) {
+        input$load_session_socket$session_id
+      } else {
+        input$load_session_socket
+      }
+      
+      if (!is.null(session_id) && nzchar(session_id)) {
+        load_session_by_id(session_id)
+      }
+    })
+    
+    # Main observer for load_session
+    observeEvent(input$load_session, {
+      req(input$load_session)  # Require non-NULL value
+      
+      # Extract session_id from the object
+      session_id <- if (is.list(input$load_session)) {
+        input$load_session$session_id
+      } else {
+        input$load_session
+      }
+      
+      req(session_id)  # Require non-NULL session_id
+      req(nzchar(session_id))  # Require non-empty string
+      
+      cat("📂 Load session triggered with ID:", session_id, "\n")
+      
+      # Retry database connection if needed
+      if (is.null(db_conn)) {
+        cat("🔄 Retrying database connection for session loading...\n")
+        tryCatch({
+          db_conn <<- db_connect()
+        }, error = function(e) {
+          cat("❌ Database reconnection failed\n")
+        })
+      }
+      
+      if (!is.null(db_conn)) {
+        tryCatch({
+          current_session_id <<- session_id
+          cat("✅ Loading session:", current_session_id, "\n")
+          
+          # Set session ID in data attribute
+          shinyjs::runjs(sprintf("document.body.setAttribute('data-session-id', '%s');", current_session_id))
+          
+          # Load messages for this session
+          messages <- db_functions$get_session_messages(db_conn, current_session_id)
+          cat("📨 Found", nrow(messages), "messages in session\n")
+          
+          # Clear UI and load messages
+          session$sendCustomMessage("clearChat", list())
+          
+          if (nrow(messages) > 0) {
+            # Send all messages to UI at once
+            messages_list <- list()
+            for (i in 1:nrow(messages)) {
+              messages_list[[i]] <- list(
+                content = messages$content[i],
+                sender = messages$sender[i],
+                timestamp = messages$created_at[i]
+              )
+            }
+            cat("✅ Sending", length(messages_list), "messages to UI\n")
+            session$sendCustomMessage("loadMessages", list(messages = messages_list))
+          } else {
+            cat("ℹ️ No messages in this session\n")
+          }
+          
+        }, error = function(e) {
+          cat("❌ Error loading session:", e$message, "\n")
+        })
+      } else {
+        cat("❌ Cannot load session: db_conn=", !is.null(db_conn), ", input$load_session=", !is.null(input$load_session), "\n")
       }
     })
     
@@ -807,6 +1220,13 @@ chatModuleServer <- function(id, auth_module = NULL) {
     # Add custom message handler for direct communication
     session$onFlushed(function() {
       session$sendCustomMessage("chatModuleReady", list(ready = TRUE))
+      
+      # Update user profile and sessions when module is ready
+      if (!is.null(current_user)) {
+        cat("🔄 Module flushed, updating profile and sessions\n")
+        update_user_profile()
+        load_user_sessions()
+      }
     })
     
     # Custom message handler for direct message processing

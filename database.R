@@ -136,10 +136,10 @@ db_functions <- list(
   
   get_user_sessions = function(pool, user_id) {
     query <- "
-      SELECT session_id, session_name, created_at, last_active
+      SELECT session_id, session_name, created_at
       FROM public.chat_sessions
       WHERE user_id = $1
-      ORDER BY last_active DESC
+      ORDER BY created_at DESC
     "
     result <- dbGetQuery(pool, query, params = list(user_id))
     return(result)
@@ -147,10 +147,10 @@ db_functions <- list(
   
   get_latest_session = function(pool, user_id) {
     query <- "
-      SELECT session_id, session_name, created_at, last_active
+      SELECT session_id, session_name, created_at
       FROM public.chat_sessions
       WHERE user_id = $1
-      ORDER BY last_active DESC
+      ORDER BY created_at DESC
       LIMIT 1
     "
     result <- dbGetQuery(pool, query, params = list(user_id))
@@ -180,11 +180,34 @@ db_functions <- list(
   },
   
   update_session_timestamp = function(pool, session_id) {
-    query <- "
-      UPDATE public.chat_sessions
-      SET last_active = CURRENT_TIMESTAMP
-      WHERE session_id = $1
-    "
-    dbExecute(pool, query, params = list(session_id))
+    # Note: last_active column doesn't exist in current schema
+    # This function is kept for future use when column is added
+    # For now, it does nothing
+    return(NULL)
+  },
+  
+  # Delete a chat session and all its messages
+  delete_session = function(pool, session_id) {
+    tryCatch({
+      # First delete all messages in the session
+      delete_messages_query <- "
+        DELETE FROM public.messages
+        WHERE session_id = $1
+      "
+      dbExecute(pool, delete_messages_query, params = list(session_id))
+      
+      # Then delete the session itself
+      delete_session_query <- "
+        DELETE FROM public.chat_sessions
+        WHERE session_id = $1
+      "
+      dbExecute(pool, delete_session_query, params = list(session_id))
+      
+      cat("✅ Session deleted:", session_id, "\n")
+      return(TRUE)
+    }, error = function(e) {
+      cat("❌ Error deleting session:", e$message, "\n")
+      return(FALSE)
+    })
   }
 )

@@ -111,7 +111,7 @@ landingPageUI <- function(id) {
               class = "hero-text",
               tags$div(class = "hero-badge", 
                 tags$i(class = "fas fa-star"),
-                tags$span(`data-en` = "AI-Powered Health Innovation", `data-rw` = "Ubwoba bwa Artificial Intelligence mu Buzima", "AI-Powered Health Innovation")
+                tags$span(`data-en` = "AI-Powered Health Innovation", `data-rw` = " Artificial Intelligence mu Buzima", "AI-Powered Health Innovation")
               ),
               tags$h1(class = "hero-title", 
                 tags$span(class = "title-main", "Baho"),
@@ -125,8 +125,8 @@ landingPageUI <- function(id) {
                 tags$span(`data-en` = "An advanced, ", `data-rw` = "Sisiteme ya Artificial Intelligence yihuse, ", "An advanced, "),
                 tags$span(class = "text-accent", `data-en` = "Kinyarwanda-speaking", `data-rw` = "ivuga Ikinyarwanda", "Kinyarwanda-speaking"),
                 tags$span(`data-en` = " Artificial Intelligence system designed to ", `data-rw` = " yateguwe ", " Artificial Intelligence system designed to "),
-                tags$span(class = "text-highlight", `data-en` = "augment Rwanda's Community Health Worker program", `data-rw` = "kwongera ubukangurambaga bwa Rwanda bwo mu buzima", "augment Rwanda's Community Health Worker program"),
-                tags$span(`data-en` = " through intelligent, data-driven, and accessible health communication.", `data-rw` = " mu buzima bwo mu buzima bwo mu buzima.", " through intelligent, data-driven, and accessible health communication.")
+                tags$span(class = "text-highlight", `data-en` = "augment Rwanda's Community Health Worker program", `data-rw` = "kongera ubukangurambaga bwu Rwanda  mu buzima", "augment Rwanda's Community Health Worker program"),
+                tags$span(`data-en` = " through intelligent, data-driven, and accessible health communication.", `data-rw` = " mu kugira ubuzima buzira umuze ", " through intelligent, data-driven, and accessible health communication.")
               ),
               tags$div(class = "hero-stats",
                 tags$div(class = "stat-item",

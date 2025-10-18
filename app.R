@@ -66,6 +66,9 @@ server <- function(input, output, session) {
   current_session_id <- reactiveVal(NULL)
   current_user_id <- reactiveVal(NULL)
   
+  # Global reactive for session loading (to bypass module communication issues)
+  session_to_load <- reactiveVal(NULL)
+  
   # Initialize database connection pool
   observe({
     tryCatch({
@@ -74,6 +77,150 @@ server <- function(input, output, session) {
     }, error = function(e) {
       cat("❌ Failed to create database pool:", e$message, "\n")
     })
+  })
+  
+  # Global session loading (bypasses module communication issues)
+  # Global handler for deleting a session
+  observeEvent(input$global_delete_session, {
+    req(input$global_delete_session)
+    session_data <- input$global_delete_session
+    
+    if (is.list(session_data)) {
+      session_id <- session_data$session_id
+      cat("🗑️ Global: Delete session requested:", session_id, "\n")
+      
+      pool <- db_pool()
+      
+      if (!is.null(pool) && !is.null(session_id)) {
+        # Delete the session
+        success <- db_functions$delete_session(pool, session_id)
+        
+        if (success) {
+          cat("✅ Global: Session deleted successfully\n")
+          
+          # If the deleted session is the current one, create a new session
+          if (!is.null(current_session_id()) && current_session_id() == session_id) {
+            user <- auth_module$get_current_user()
+            if (!is.null(user)) {
+              new_session_id <- db_functions$create_chat_session(pool, user$user_id, "New Chat")
+              current_session_id(new_session_id)
+              
+              # Clear the chat UI
+              session$sendCustomMessage("clearChat", list())
+              session$sendCustomMessage("setSessionId", list(session_id = new_session_id))
+              cat("✅ Created new session after deletion:", new_session_id, "\n")
+            }
+          }
+          
+          # Reload the sessions list for the user
+          user <- auth_module$get_current_user()
+          if (!is.null(user)) {
+            chat_sessions <- db_functions$get_user_sessions(pool, user$user_id)
+            
+            # Fetch first messages for titles
+            if (nrow(chat_sessions) > 0) {
+              session_ids <- chat_sessions$session_id
+              placeholders <- paste0("$", seq_along(session_ids), collapse = ", ")
+              first_msg_query <- sprintf("
+                SELECT DISTINCT ON (session_id) session_id, content as first_message
+                FROM public.messages
+                WHERE session_id IN (%s) AND sender = 'user'
+                ORDER BY session_id, created_at ASC
+              ", placeholders)
+              first_messages <- dbGetQuery(pool, first_msg_query, params = as.list(session_ids))
+              first_msg_map <- setNames(first_messages$first_message, first_messages$session_id)
+              
+              # Build sessions list with titles
+              sessions_with_titles <- lapply(1:nrow(chat_sessions), function(i) {
+                session_row <- chat_sessions[i, ]
+                first_msg <- if (session_row$session_id %in% names(first_msg_map)) {
+                  first_msg_map[[session_row$session_id]]
+                } else {
+                  NULL
+                }
+                
+                title <- if (!is.null(first_msg) && !is.na(first_msg) && nchar(first_msg) > 0) {
+                  words <- strsplit(first_msg, " ")[[1]]
+                  if (length(words) > 0) {
+                    msg_title <- paste(words[1:min(5, length(words))], collapse = " ")
+                    if (length(words) > 5) paste0(msg_title, "...") else msg_title
+                  } else {
+                    "New Chat"
+                  }
+                } else {
+                  "New Chat"
+                }
+                
+                list(
+                  session_id = session_row$session_id,
+                  session_name = title,
+                  last_active = format(session_row$created_at, "%Y-%m-%d %H:%M")
+                )
+              })
+              
+              session$sendCustomMessage("updateRecentChats", list(sessions = sessions_with_titles))
+              cat("✅ Updated recent chats after deletion\n")
+            } else {
+              # No sessions left, show empty state
+              session$sendCustomMessage("updateRecentChats", list(sessions = list()))
+            }
+          }
+        } else {
+          cat("❌ Global: Failed to delete session\n")
+        }
+      }
+    }
+  })
+  
+  observeEvent(input$global_load_session, {
+    req(input$global_load_session)
+    session_data <- input$global_load_session
+    
+    if (is.list(session_data)) {
+      session_id <- session_data$session_id
+      cat("🌐 Global: Load session requested:", session_id, "\n")
+      
+      # Load the session directly from app level
+      pool <- db_pool()
+      
+      if (!is.null(pool) && !is.null(session_id)) {
+        tryCatch({
+          # Set current session
+          current_session_id(session_id)
+          
+          # Load messages
+          messages <- db_functions$get_session_messages(pool, session_id)
+          cat("📨 Global: Found", nrow(messages), "messages in session\n")
+          
+          # Send clear chat command
+          session$sendCustomMessage("clearChat", list())
+          
+          # Send messages to UI
+          if (nrow(messages) > 0) {
+            messages_list <- list()
+            for (i in 1:nrow(messages)) {
+              messages_list[[i]] <- list(
+                content = messages$content[i],
+                sender = messages$sender[i],
+                timestamp = messages$created_at[i]
+              )
+            }
+            cat("✅ Global: Sending", length(messages_list), "messages to UI\n")
+            session$sendCustomMessage("loadMessages", list(messages = messages_list))
+            
+            # Also update the session ID attribute
+            session$sendCustomMessage("setSessionId", list(session_id = session_id))
+          } else {
+            cat("ℹ️ Global: No messages in this session\n")
+          }
+          
+        }, error = function(e) {
+          cat("❌ Global: Error loading session:", e$message, "\n")
+        })
+      } else {
+        cat("❌ Global: Cannot load - pool or session_id is NULL\n")
+      }
+    }
   })
   
   # Global message processing (bypasses module restart issues)
@@ -117,7 +264,7 @@ server <- function(input, output, session) {
         
         # Save AI response to database
         if (!is.null(pool) && !is.null(session_id)) {
-          db_functions$save_message(pool, session_id, ai_response, "assistant")
+          db_functions$save_message(pool, session_id, ai_response, "ai")
           db_functions$update_session_timestamp(pool, session_id)
         }
         

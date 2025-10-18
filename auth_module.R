@@ -1055,7 +1055,7 @@ authServer <- function(id, navigate_to_chat = NULL, navigate_to_home = NULL) {
     
     # Initialize database connection
     db_conn <- NULL
-    current_user <- NULL
+    current_user <- reactiveVal(NULL)
     login_in_progress <- FALSE
     
     # Function to get or create database connection
@@ -1150,8 +1150,8 @@ authServer <- function(id, navigate_to_chat = NULL, navigate_to_home = NULL) {
         auth_result <- db_functions$authenticate_user(db_conn, email, password)
         
         if (nrow(auth_result) > 0) {
-          current_user <<- auth_result[1, ]
-          cat("✅ User logged in:", current_user$username, "\n")
+          current_user(auth_result[1, ])
+          cat("✅ User logged in:", current_user()$username, "\n")
           
           # Reset loading state
           set_loading("login_btn_text", FALSE)
@@ -1246,28 +1246,26 @@ authServer <- function(id, navigate_to_chat = NULL, navigate_to_home = NULL) {
           # Get the created user
           query <- "SELECT * FROM users WHERE user_id = $1"
           new_user <- dbGetQuery(db_conn, query, params = list(user_id))
-          current_user <<- new_user[1, ]
+          current_user(new_user[1, ])
           
-          cat("✅ New user created:", current_user$username, "\n")
+          cat("✅ New user created:", current_user()$username, "\n")
           
           # Reset loading state
           set_loading("signup_btn_text", FALSE)
           
           show_message("Konti yashyizweho neza! Murakaza neza!", "success", "signup")
           
-          # Navigate to chat after a short delay
+          # Navigate to chat immediately
           cat("🚀 Triggering navigation to chat after signup...\n")
-          shinyjs::delay(2000, {
-            if (!is.null(navigate_to_chat)) {
-              navigate_to_chat(navigate_to_chat() + 1)
-            } else {
-              # Fallback to custom message
-              session$sendCustomMessage("navigateToChat", list(
-                user_id = current_user$user_id,
-                username = current_user$username
-              ))
-            }
-          })
+          if (!is.null(navigate_to_chat)) {
+            navigate_to_chat(navigate_to_chat() + 1)
+          } else {
+            # Fallback to custom message
+            session$sendCustomMessage("navigateToChat", list(
+              user_id = current_user$user_id,
+              username = current_user$username
+            ))
+          }
           
         } else {
           show_message("Habayeho ikibazo mu gushyiraho konti. Nyamuneka gerageza nanone", "error", "signup")
@@ -1283,7 +1281,7 @@ authServer <- function(id, navigate_to_chat = NULL, navigate_to_home = NULL) {
     
     # Return current user for other modules
     return(list(
-      get_current_user = function() current_user,
+      get_current_user = reactive({ current_user() }),
       get_db_conn = function() get_db_connection()
     ))
     
