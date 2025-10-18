@@ -244,22 +244,29 @@ server <- function(input, output, session) {
         # Get database pool
         pool <- db_pool()
         
-        # Save user message to database
+        # Save user message to database FIRST
         if (!is.null(pool) && !is.null(session_id)) {
           db_functions$save_message(pool, session_id, message_content, "user")
           db_functions$update_session_timestamp(pool, session_id)
+          cat("✅ Saved user message to database\n")
         }
         
-        # Load conversation history for context
+        # Load COMPLETE conversation history including the message we just saved
         conversation_history <- NULL
         if (!is.null(pool) && !is.null(session_id)) {
           messages <- db_functions$get_session_messages(pool, session_id)
+          cat("📖 Loaded", nrow(messages), "messages for context (including current message)\n")
           if (nrow(messages) > 0) {
             conversation_history <- messages
+            cat("📖 Conversation history:\n")
+            for (i in 1:nrow(messages)) {
+              cat("  ", i, ".", messages$sender[i], ":", substr(messages$content[i], 1, 50), "...\n")
+            }
           }
         }
         
-        # Get AI response with conversation history
+        # Get AI response with FULL conversation history for context awareness
+        cat("🤖 Sending to AI with", ifelse(is.null(conversation_history), 0, nrow(conversation_history)), "messages of context\n")
         ai_response <- openai_functions$send_message(message_content, conversation_history)
         
         # Save AI response to database

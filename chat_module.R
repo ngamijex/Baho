@@ -17,7 +17,9 @@ chatModuleUI <- function(id) {
       tags$meta(name = "viewport", content = "width=device-width, initial-scale=1.0"),
       tags$title("Baho AI Chat - Your Health Assistant"),
       # Font Awesome for icons
-      tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+      tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"),
+      # Marked.js for markdown parsing
+      tags$script(src = "https://cdn.jsdelivr.net/npm/marked/marked.min.js")
     ),
     
     # Main Chat Container
@@ -389,7 +391,8 @@ chatModuleUI <- function(id) {
            }
          }
         
-         function addMessage(content, sender) {
+         // Function to add message with typing animation and markdown formatting
+         function addMessage(content, sender, animate = false) {
            const messageDiv = document.createElement('div');
            messageDiv.className = `message ${sender}-message`;
            
@@ -397,18 +400,111 @@ chatModuleUI <- function(id) {
              '<div class=\"message-avatar user-avatar\"><span class=\"icon-user\"></span></div>' :
              '<div class=\"message-avatar ai-avatar\"><span class=\"icon-ai\"></span></div>';
            
-           messageDiv.innerHTML = `
-             ${avatar}
-             <div class=\"message-content\">
-               <div class=\"message-text\">${content}</div>
-               <div class=\"message-time\">${new Date().toLocaleTimeString()}</div>
-             </div>
-           `;
+           // Create message structure
+           const messageTextDiv = document.createElement('div');
+           messageTextDiv.className = 'message-text';
+           
+           const messageTime = document.createElement('div');
+           messageTime.className = 'message-time';
+           messageTime.textContent = new Date().toLocaleTimeString();
+           
+           const messageContent = document.createElement('div');
+           messageContent.className = 'message-content';
+           messageContent.appendChild(messageTextDiv);
+           messageContent.appendChild(messageTime);
+           
+           messageDiv.innerHTML = avatar;
+           messageDiv.appendChild(messageContent);
            
            if (finalMessagesContainer) {
              finalMessagesContainer.appendChild(messageDiv);
-             finalMessagesContainer.scrollTop = finalMessagesContainer.scrollHeight;
+             
+             // For AI messages, format with markdown and animate
+             if (sender === 'ai' && animate) {
+               typeMessage(messageTextDiv, content, finalMessagesContainer);
+             } else {
+               // For user messages or non-animated AI messages, show immediately
+               if (sender === 'ai') {
+                 // Format AI messages with markdown
+                 messageTextDiv.innerHTML = formatMarkdown(content);
+               } else {
+                 // User messages stay plain text
+                 messageTextDiv.textContent = content;
+               }
+               finalMessagesContainer.scrollTop = finalMessagesContainer.scrollHeight;
+             }
            }
+         }
+         
+         // Function to format markdown with emojis and proper styling
+         function formatMarkdown(text) {
+           // Configure marked for better formatting
+           if (typeof marked !== 'undefined') {
+             marked.setOptions({
+               breaks: true,
+               gfm: true
+             });
+             return marked.parse(text);
+           }
+           
+           // Fallback if marked.js not loaded
+           return text
+             .replace(/\\n\\n/g, '<br><br>')
+             .replace(/\\n/g, '<br>')
+             .replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>')
+             .replace(/\\*(.+?)\\*/g, '<em>$1</em>')
+             .replace(/^- (.+)$/gm, '<li>$1</li>')
+             .replace(/^\\d+\\. (.+)$/gm, '<li>$1</li>');
+         }
+         
+         // Function to type message letter by letter
+         function typeMessage(element, text, container) {
+           let index = 0;
+           const formattedText = formatMarkdown(text);
+           const tempDiv = document.createElement('div');
+           tempDiv.innerHTML = formattedText;
+           const plainText = text; // Keep original text for typing
+           
+           element.innerHTML = '';
+           
+           function typeNextChar() {
+             if (index < plainText.length) {
+               // Get current progress and render markdown up to this point
+               const currentText = plainText.substring(0, index + 1);
+               element.innerHTML = formatMarkdown(currentText);
+               
+               index++;
+               
+               // Auto-scroll as typing continues
+               if (container) {
+                 container.scrollTop = container.scrollHeight;
+               }
+               
+               // Vary typing speed: faster for spaces, slower for punctuation
+               let delay = 20; // Default speed (fast)
+               const char = plainText[index - 1];
+               
+               if (char === ' ') {
+                 delay = 10; // Faster for spaces
+               } else if (char === '.' || char === '!' || char === '?') {
+                 delay = 200; // Pause at sentence endings
+               } else if (char === ',' || char === ';') {
+                 delay = 100; // Shorter pause at commas
+               } else if (char === '\\n') {
+                 delay = 150; // Pause at line breaks
+               }
+               
+               setTimeout(typeNextChar, delay);
+             } else {
+               // Typing complete - render final formatted version
+               element.innerHTML = formattedText;
+               if (container) {
+                 container.scrollTop = container.scrollHeight;
+               }
+             }
+           }
+           
+           typeNextChar();
          }
         
         function showTypingIndicator() {
@@ -503,7 +599,7 @@ chatModuleUI <- function(id) {
           }
         });
         
-        // Handle AI response
+        // Handle AI response with typing animation
         Shiny.addCustomMessageHandler('aiResponse', function(message) {
           console.log('AI Response received:', message);
           console.log('Message content:', message.content);
@@ -517,8 +613,9 @@ chatModuleUI <- function(id) {
           }
           
           hideTypingIndicator();
-          addMessage(message.content, 'ai');
-          console.log('AI message added to UI');
+          // Add AI message with typing animation (animate = true)
+          addMessage(message.content, 'ai', true);
+          console.log('AI message added to UI with typing animation');
         });
         
         // Handle loading existing messages
