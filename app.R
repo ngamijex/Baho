@@ -10,6 +10,9 @@ source("openai_integration.R")
 source("pregnancy_program_module.R")
 source("pregnancy_dashboard_module.R")
 source("child_health_module.R")
+source("child_dashboard_module.R")
+source("chronic_disease_module.R")
+source("chronic_dashboard_module.R")
 
 # Define UI for the main application
 ui <- fluidPage(

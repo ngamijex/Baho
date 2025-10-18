@@ -577,5 +577,873 @@ db_functions <- list(
       cat("Error getting child vaccinations:", e$message, "\n")
       return(data.frame())
     })
+  },
+  
+  # ============= FEEDING LOGS =============
+  
+  # Save feeding log
+  save_feeding_log = function(pool, child_id, user_id, feeding_data) {
+    tryCatch({
+      # Calculate duration if start and end times provided
+      duration <- NULL
+      if (!is.null(feeding_data$duration_minutes)) {
+        duration <- feeding_data$duration_minutes
+      }
+      
+      query <- "
+        INSERT INTO public.feeding_logs 
+        (child_id, user_id, feeding_type, feeding_date, feeding_time, 
+         amount, duration_minutes, notes)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING feeding_id
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(
+        child_id,
+        user_id,
+        feeding_data$feeding_type,
+        feeding_data$feeding_date %||% Sys.Date(),
+        feeding_data$feeding_time %||% format(Sys.time(), "%H:%M:%S"),
+        feeding_data$amount %||% NA,
+        duration,
+        feeding_data$notes %||% NA
+      ))
+      
+      return(result$feeding_id[1])
+    }, error = function(e) {
+      cat("Error saving feeding log:", e$message, "\n")
+      return(NULL)
+    })
+  },
+  
+  # Get feeding logs
+  get_feeding_logs = function(pool, child_id, limit = 20) {
+    tryCatch({
+      query <- "
+        SELECT * FROM public.feeding_logs
+        WHERE child_id = $1
+        ORDER BY feeding_date DESC, feeding_time DESC
+        LIMIT $2
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(child_id, limit))
+      return(result)
+    }, error = function(e) {
+      cat("Error getting feeding logs:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # ============= SLEEP SESSIONS =============
+  
+  # Save sleep session
+  save_sleep_session = function(pool, child_id, user_id, sleep_data) {
+    tryCatch({
+      # Calculate duration in minutes
+      start_time <- as.POSIXct(paste(sleep_data$sleep_date, sleep_data$start_time))
+      end_time <- as.POSIXct(paste(sleep_data$sleep_date, sleep_data$end_time))
+      
+      # Handle overnight sleep
+      if (end_time < start_time) {
+        end_time <- end_time + 86400  # Add 24 hours
+      }
+      
+      duration_minutes <- as.numeric(difftime(end_time, start_time, units = "mins"))
+      
+      query <- "
+        INSERT INTO public.sleep_sessions 
+        (child_id, user_id, sleep_date, start_time, end_time, 
+         duration_minutes, sleep_type, quality, notes)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING sleep_id
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(
+        child_id,
+        user_id,
+        sleep_data$sleep_date,
+        sleep_data$start_time,
+        sleep_data$end_time,
+        duration_minutes,
+        sleep_data$sleep_type %||% "night",
+        sleep_data$quality %||% NA,
+        sleep_data$notes %||% NA
+      ))
+      
+      return(result$sleep_id[1])
+    }, error = function(e) {
+      cat("Error saving sleep session:", e$message, "\n")
+      return(NULL)
+    })
+  },
+  
+  # Get sleep sessions
+  get_sleep_sessions = function(pool, child_id, limit = 30) {
+    tryCatch({
+      query <- "
+        SELECT * FROM public.sleep_sessions
+        WHERE child_id = $1
+        ORDER BY sleep_date DESC, start_time DESC
+        LIMIT $2
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(child_id, limit))
+      return(result)
+    }, error = function(e) {
+      cat("Error getting sleep sessions:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # Get today's sleep summary
+  get_today_sleep_summary = function(pool, child_id) {
+    tryCatch({
+      query <- "
+        SELECT 
+          COUNT(*) as nap_count,
+          SUM(duration_minutes) as total_sleep_minutes
+        FROM public.sleep_sessions
+        WHERE child_id = $1 AND sleep_date = CURRENT_DATE
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(child_id))
+      return(result)
+    }, error = function(e) {
+      cat("Error getting today's sleep summary:", e$message, "\n")
+      return(data.frame(nap_count = 0, total_sleep_minutes = 0))
+    })
+  },
+  
+  # ============= APPOINTMENTS =============
+  
+  # Save appointment
+  save_appointment = function(pool, child_id, user_id, appointment_data) {
+    tryCatch({
+      query <- "
+        INSERT INTO public.child_appointments 
+        (child_id, user_id, appointment_type, appointment_date, appointment_time,
+         provider_name, facility_name, phone, address, purpose, notes, status)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        RETURNING appointment_id
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(
+        child_id,
+        user_id,
+        appointment_data$appointment_type,
+        appointment_data$appointment_date,
+        appointment_data$appointment_time %||% NA,
+        appointment_data$provider_name %||% NA,
+        appointment_data$facility_name %||% NA,
+        appointment_data$phone %||% NA,
+        appointment_data$address %||% NA,
+        appointment_data$purpose %||% NA,
+        appointment_data$notes %||% NA,
+        appointment_data$status %||% "scheduled"
+      ))
+      
+      return(result$appointment_id[1])
+    }, error = function(e) {
+      cat("Error saving appointment:", e$message, "\n")
+      return(NULL)
+    })
+  },
+  
+  # Get appointments
+  get_appointments = function(pool, child_id, status = NULL) {
+    tryCatch({
+      if (is.null(status)) {
+        query <- "
+          SELECT * FROM public.child_appointments
+          WHERE child_id = $1
+          ORDER BY appointment_date ASC
+        "
+        result <- dbGetQuery(pool, query, params = list(child_id))
+      } else {
+        query <- "
+          SELECT * FROM public.child_appointments
+          WHERE child_id = $1 AND status = $2
+          ORDER BY appointment_date ASC
+        "
+        result <- dbGetQuery(pool, query, params = list(child_id, status))
+      }
+      return(result)
+    }, error = function(e) {
+      cat("Error getting appointments:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # Update appointment status
+  update_appointment_status = function(pool, appointment_id, status) {
+    tryCatch({
+      query <- "
+        UPDATE public.child_appointments 
+        SET status = $1, updated_at = CURRENT_TIMESTAMP
+        WHERE appointment_id = $2
+      "
+      
+      dbExecute(pool, query, params = list(status, appointment_id))
+      return(TRUE)
+    }, error = function(e) {
+      cat("Error updating appointment:", e$message, "\n")
+      return(FALSE)
+    })
+  },
+  
+  # ============= PHOTOS =============
+  
+  # Save photo
+  save_child_photo = function(pool, child_id, user_id, photo_data) {
+    tryCatch({
+      query <- "
+        INSERT INTO public.child_photos 
+        (child_id, user_id, photo_url, photo_data, caption, photo_date,
+         age_at_photo_days, milestone_tag, is_milestone)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING photo_id
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(
+        child_id,
+        user_id,
+        photo_data$photo_url %||% "",
+        photo_data$photo_data %||% NA,
+        photo_data$caption %||% NA,
+        photo_data$photo_date %||% Sys.Date(),
+        photo_data$age_at_photo_days %||% NA,
+        photo_data$milestone_tag %||% NA,
+        photo_data$is_milestone %||% FALSE
+      ))
+      
+      return(result$photo_id[1])
+    }, error = function(e) {
+      cat("Error saving photo:", e$message, "\n")
+      return(NULL)
+    })
+  },
+  
+  # Get photos
+  get_child_photos = function(pool, child_id, limit = 50) {
+    tryCatch({
+      query <- "
+        SELECT * FROM public.child_photos
+        WHERE child_id = $1
+        ORDER BY photo_date DESC, created_at DESC
+        LIMIT $2
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(child_id, limit))
+      return(result)
+    }, error = function(e) {
+      cat("Error getting photos:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # Delete photo
+  delete_child_photo = function(pool, photo_id) {
+    tryCatch({
+      query <- "DELETE FROM public.child_photos WHERE photo_id = $1"
+      dbExecute(pool, query, params = list(photo_id))
+      return(TRUE)
+    }, error = function(e) {
+      cat("Error deleting photo:", e$message, "\n")
+      return(FALSE)
+    })
+  },
+  
+  # ============= MILESTONES =============
+  
+  # Save or update milestone
+  save_milestone = function(pool, child_id, user_id, milestone_data) {
+    tryCatch({
+      query <- "
+        INSERT INTO public.milestone_tracking 
+        (child_id, user_id, milestone_name, milestone_category, 
+         expected_age_months, achieved, achieved_date, notes)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ON CONFLICT ON CONSTRAINT milestone_tracking_pkey 
+        DO UPDATE SET 
+          achieved = EXCLUDED.achieved,
+          achieved_date = EXCLUDED.achieved_date,
+          notes = EXCLUDED.notes
+        RETURNING milestone_id
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(
+        child_id,
+        user_id,
+        milestone_data$milestone_name,
+        milestone_data$milestone_category %||% NA,
+        milestone_data$expected_age_months %||% NA,
+        milestone_data$achieved %||% FALSE,
+        milestone_data$achieved_date %||% NA,
+        milestone_data$notes %||% NA
+      ))
+      
+      return(result$milestone_id[1])
+    }, error = function(e) {
+      cat("Error saving milestone:", e$message, "\n")
+      return(NULL)
+    })
+  },
+  
+  # Get milestones
+  get_milestones = function(pool, child_id) {
+    tryCatch({
+      query <- "
+        SELECT * FROM public.milestone_tracking
+        WHERE child_id = $1
+        ORDER BY expected_age_months ASC, milestone_name ASC
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(child_id))
+      return(result)
+    }, error = function(e) {
+      cat("Error getting milestones:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # Update milestone achievement
+  update_milestone_achievement = function(pool, milestone_id, achieved, achieved_date = NULL) {
+    tryCatch({
+      if (is.null(achieved_date)) {
+        achieved_date <- Sys.Date()
+      }
+      
+      query <- "
+        UPDATE public.milestone_tracking 
+        SET achieved = $1, achieved_date = $2
+        WHERE milestone_id = $3
+      "
+      
+      dbExecute(pool, query, params = list(achieved, achieved_date, milestone_id))
+      return(TRUE)
+    }, error = function(e) {
+      cat("Error updating milestone:", e$message, "\n")
+      return(FALSE)
+    })
+  },
+  
+  # ============= NOTIFICATIONS =============
+  
+  # Create notification
+  create_notification = function(pool, child_id, user_id, notification_data) {
+    tryCatch({
+      query <- "
+        INSERT INTO public.child_notifications 
+        (child_id, user_id, notification_type, title, message, 
+         due_date, priority)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING notification_id
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(
+        child_id,
+        user_id,
+        notification_data$notification_type,
+        notification_data$title,
+        notification_data$message,
+        notification_data$due_date %||% NA,
+        notification_data$priority %||% "normal"
+      ))
+      
+      return(result$notification_id[1])
+    }, error = function(e) {
+      cat("Error creating notification:", e$message, "\n")
+      return(NULL)
+    })
+  },
+  
+  # Get notifications
+  get_notifications = function(pool, child_id, unread_only = FALSE) {
+    tryCatch({
+      if (unread_only) {
+        query <- "
+          SELECT * FROM public.child_notifications
+          WHERE child_id = $1 AND is_read = FALSE
+          ORDER BY due_date ASC, created_at DESC
+        "
+      } else {
+        query <- "
+          SELECT * FROM public.child_notifications
+          WHERE child_id = $1
+          ORDER BY due_date ASC, created_at DESC
+          LIMIT 50
+        "
+      }
+      
+      result <- dbGetQuery(pool, query, params = list(child_id))
+      return(result)
+    }, error = function(e) {
+      cat("Error getting notifications:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # Mark notification as read
+  mark_notification_read = function(pool, notification_id) {
+    tryCatch({
+      query <- "
+        UPDATE public.child_notifications 
+        SET is_read = TRUE
+        WHERE notification_id = $1
+      "
+      
+      dbExecute(pool, query, params = list(notification_id))
+      return(TRUE)
+    }, error = function(e) {
+      cat("Error marking notification as read:", e$message, "\n")
+      return(FALSE)
+    })
+  },
+  
+  # ============= CHRONIC DISEASE MANAGEMENT (BAHO FOR LIFE) =============
+  
+  # Save chronic disease patient
+  save_chronic_patient = function(pool, enrollment_id, user_id, patient_data) {
+    tryCatch({
+      query <- "
+        INSERT INTO public.chronic_disease_patients 
+        (enrollment_id, user_id, full_name, date_of_birth, gender, phone,
+         emergency_contact_name, emergency_contact_phone,
+         has_diabetes, has_hypertension, has_heart_disease, has_asthma,
+         has_kidney_disease, has_arthritis, other_conditions,
+         diagnosis_date, primary_physician, hospital_name,
+         insurance_type, insurance_number,
+         smoking_status, alcohol_consumption, exercise_frequency,
+         allergies, previous_surgeries, family_history)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
+        RETURNING patient_id
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(
+        enrollment_id, user_id,
+        patient_data$full_name, patient_data$date_of_birth, patient_data$gender, patient_data$phone,
+        patient_data$emergency_contact_name %||% NA, patient_data$emergency_contact_phone %||% NA,
+        patient_data$has_diabetes %||% FALSE, patient_data$has_hypertension %||% FALSE,
+        patient_data$has_heart_disease %||% FALSE, patient_data$has_asthma %||% FALSE,
+        patient_data$has_kidney_disease %||% FALSE, patient_data$has_arthritis %||% FALSE,
+        patient_data$other_conditions %||% NA,
+        patient_data$diagnosis_date %||% NA, patient_data$primary_physician %||% NA,
+        patient_data$hospital_name %||% NA,
+        patient_data$insurance_type %||% NA, patient_data$insurance_number %||% NA,
+        patient_data$smoking_status %||% NA, patient_data$alcohol_consumption %||% NA,
+        patient_data$exercise_frequency %||% NA,
+        patient_data$allergies %||% NA, patient_data$previous_surgeries %||% NA,
+        patient_data$family_history %||% NA
+      ))
+      
+      return(result$patient_id[1])
+    }, error = function(e) {
+      cat("Error saving chronic patient:", e$message, "\n")
+      return(NULL)
+    })
+  },
+  
+  # Get chronic patient data
+  get_chronic_patient_data = function(pool, user_id) {
+    tryCatch({
+      query <- "
+        SELECT * FROM public.chronic_disease_patients
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        LIMIT 1
+      "
+      result <- dbGetQuery(pool, query, params = list(user_id))
+      return(result)
+    }, error = function(e) {
+      cat("Error getting chronic patient data:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # Add medication
+  add_medication = function(pool, patient_id, user_id, med_data) {
+    tryCatch({
+      query <- "
+        INSERT INTO public.patient_medications
+        (patient_id, user_id, medication_name, dosage, frequency, time_of_day,
+         start_date, end_date, purpose, side_effects, prescribing_doctor,
+         is_active, reminder_enabled, notes)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+        RETURNING medication_id
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(
+        patient_id, user_id,
+        med_data$medication_name, med_data$dosage %||% NA, med_data$frequency %||% NA,
+        med_data$time_of_day %||% NA, med_data$start_date %||% Sys.Date(),
+        med_data$end_date %||% NA, med_data$purpose %||% NA,
+        med_data$side_effects %||% NA, med_data$prescribing_doctor %||% NA,
+        med_data$is_active %||% TRUE, med_data$reminder_enabled %||% TRUE,
+        med_data$notes %||% NA
+      ))
+      
+      return(result$medication_id[1])
+    }, error = function(e) {
+      cat("Error adding medication:", e$message, "\n")
+      return(NULL)
+    })
+  },
+  
+  # Get patient medications
+  get_patient_medications = function(pool, patient_id, active_only = TRUE) {
+    tryCatch({
+      if (active_only) {
+        query <- "
+          SELECT * FROM public.patient_medications
+          WHERE patient_id = $1 AND is_active = TRUE
+          ORDER BY created_at DESC
+        "
+      } else {
+        query <- "
+          SELECT * FROM public.patient_medications
+          WHERE patient_id = $1
+          ORDER BY created_at DESC
+        "
+      }
+      
+      result <- dbGetQuery(pool, query, params = list(patient_id))
+      return(result)
+    }, error = function(e) {
+      cat("Error getting medications:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # Log medication taken
+  log_medication_taken = function(pool, medication_id, patient_id, status, notes = NULL) {
+    tryCatch({
+      query <- "
+        INSERT INTO public.medication_logs
+        (medication_id, patient_id, taken_date, taken_time, status, notes)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING log_id
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(
+        medication_id, patient_id, Sys.Date(),
+        format(Sys.time(), "%H:%M:%S"), status, notes %||% NA
+      ))
+      
+      return(result$log_id[1])
+    }, error = function(e) {
+      cat("Error logging medication:", e$message, "\n")
+      return(NULL)
+    })
+  },
+  
+  # Get medication adherence
+  get_medication_adherence = function(pool, patient_id, days = 30) {
+    tryCatch({
+      query <- "
+        SELECT 
+          COUNT(*) as total_logs,
+          SUM(CASE WHEN status = 'taken' THEN 1 ELSE 0 END) as taken_count
+        FROM public.medication_logs
+        WHERE patient_id = $1 
+        AND taken_date >= CURRENT_DATE - $2
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(patient_id, days))
+      return(result)
+    }, error = function(e) {
+      cat("Error getting adherence:", e$message, "\n")
+      return(data.frame(total_logs = 0, taken_count = 0))
+    })
+  },
+  
+  # Save vital signs
+  save_vital_signs = function(pool, patient_id, user_id, vitals_data) {
+    tryCatch({
+      query <- "
+        INSERT INTO public.vital_signs_records
+        (patient_id, user_id, measurement_date, measurement_time,
+         systolic_bp, diastolic_bp, blood_glucose, glucose_context,
+         heart_rate, temperature, weight_kg, oxygen_saturation,
+         cholesterol, bmi, notes, feeling)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+        RETURNING vital_id
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(
+        patient_id, user_id,
+        vitals_data$measurement_date %||% Sys.Date(),
+        vitals_data$measurement_time %||% format(Sys.time(), "%H:%M:%S"),
+        vitals_data$systolic_bp %||% NA, vitals_data$diastolic_bp %||% NA,
+        vitals_data$blood_glucose %||% NA, vitals_data$glucose_context %||% NA,
+        vitals_data$heart_rate %||% NA, vitals_data$temperature %||% NA,
+        vitals_data$weight_kg %||% NA, vitals_data$oxygen_saturation %||% NA,
+        vitals_data$cholesterol %||% NA, vitals_data$bmi %||% NA,
+        vitals_data$notes %||% NA, vitals_data$feeling %||% NA
+      ))
+      
+      return(result$vital_id[1])
+    }, error = function(e) {
+      cat("Error saving vital signs:", e$message, "\n")
+      return(NULL)
+    })
+  },
+  
+  # Get vital signs history
+  get_vital_signs_history = function(pool, patient_id, limit = 50) {
+    tryCatch({
+      query <- "
+        SELECT * FROM public.vital_signs_records
+        WHERE patient_id = $1
+        ORDER BY measurement_date DESC, measurement_time DESC
+        LIMIT $2
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(patient_id, limit))
+      return(result)
+    }, error = function(e) {
+      cat("Error getting vital signs history:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # Get latest vitals
+  get_latest_vitals = function(pool, patient_id) {
+    tryCatch({
+      query <- "
+        SELECT * FROM public.vital_signs_records
+        WHERE patient_id = $1
+        ORDER BY measurement_date DESC, measurement_time DESC
+        LIMIT 1
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(patient_id))
+      return(result)
+    }, error = function(e) {
+      cat("Error getting latest vitals:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # Save lab test
+  save_lab_test = function(pool, patient_id, user_id, test_data) {
+    tryCatch({
+      query <- "
+        INSERT INTO public.lab_tests
+        (patient_id, user_id, test_name, test_category, test_date,
+         result_value, reference_range, unit, status,
+         ordered_by, lab_facility, interpretation, notes)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+        RETURNING test_id
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(
+        patient_id, user_id,
+        test_data$test_name, test_data$test_category %||% NA, test_data$test_date,
+        test_data$result_value %||% NA, test_data$reference_range %||% NA,
+        test_data$unit %||% NA, test_data$status %||% "completed",
+        test_data$ordered_by %||% NA, test_data$lab_facility %||% NA,
+        test_data$interpretation %||% NA, test_data$notes %||% NA
+      ))
+      
+      return(result$test_id[1])
+    }, error = function(e) {
+      cat("Error saving lab test:", e$message, "\n")
+      return(NULL)
+    })
+  },
+  
+  # Get lab tests
+  get_lab_tests = function(pool, patient_id, limit = 20) {
+    tryCatch({
+      query <- "
+        SELECT * FROM public.lab_tests
+        WHERE patient_id = $1
+        ORDER BY test_date DESC
+        LIMIT $2
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(patient_id, limit))
+      return(result)
+    }, error = function(e) {
+      cat("Error getting lab tests:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # Log symptom
+  log_symptom = function(pool, patient_id, user_id, symptom_data) {
+    tryCatch({
+      query <- "
+        INSERT INTO public.symptoms_diary
+        (patient_id, user_id, symptom_date, symptom_time,
+         symptom_type, severity, duration, triggers, relief_measures, notes)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        RETURNING symptom_id
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(
+        patient_id, user_id,
+        symptom_data$symptom_date %||% Sys.Date(),
+        symptom_data$symptom_time %||% format(Sys.time(), "%H:%M:%S"),
+        symptom_data$symptom_type, symptom_data$severity %||% NA,
+        symptom_data$duration %||% NA, symptom_data$triggers %||% NA,
+        symptom_data$relief_measures %||% NA, symptom_data$notes %||% NA
+      ))
+      
+      return(result$symptom_id[1])
+    }, error = function(e) {
+      cat("Error logging symptom:", e$message, "\n")
+      return(NULL)
+    })
+  },
+  
+  # Get symptoms history
+  get_symptoms_history = function(pool, patient_id, limit = 30) {
+    tryCatch({
+      query <- "
+        SELECT * FROM public.symptoms_diary
+        WHERE patient_id = $1
+        ORDER BY symptom_date DESC, symptom_time DESC
+        LIMIT $2
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(patient_id, limit))
+      return(result)
+    }, error = function(e) {
+      cat("Error getting symptoms:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # Schedule chronic appointment
+  schedule_chronic_appointment = function(pool, patient_id, user_id, apt_data) {
+    tryCatch({
+      query <- "
+        INSERT INTO public.chronic_care_appointments
+        (patient_id, user_id, appointment_type, appointment_date, appointment_time,
+         doctor_name, specialty, hospital_name, location, phone,
+         reason, notes, status)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+        RETURNING appointment_id
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(
+        patient_id, user_id,
+        apt_data$appointment_type, apt_data$appointment_date, apt_data$appointment_time %||% NA,
+        apt_data$doctor_name %||% NA, apt_data$specialty %||% NA,
+        apt_data$hospital_name %||% NA, apt_data$location %||% NA,
+        apt_data$phone %||% NA, apt_data$reason %||% NA,
+        apt_data$notes %||% NA, apt_data$status %||% "scheduled"
+      ))
+      
+      return(result$appointment_id[1])
+    }, error = function(e) {
+      cat("Error scheduling appointment:", e$message, "\n")
+      return(NULL)
+    })
+  },
+  
+  # Get chronic appointments
+  get_chronic_appointments = function(pool, patient_id, status = NULL) {
+    tryCatch({
+      if (is.null(status)) {
+        query <- "
+          SELECT * FROM public.chronic_care_appointments
+          WHERE patient_id = $1
+          ORDER BY appointment_date ASC
+        "
+        result <- dbGetQuery(pool, query, params = list(patient_id))
+      } else {
+        query <- "
+          SELECT * FROM public.chronic_care_appointments
+          WHERE patient_id = $1 AND status = $2
+          ORDER BY appointment_date ASC
+        "
+        result <- dbGetQuery(pool, query, params = list(patient_id, status))
+      }
+      return(result)
+    }, error = function(e) {
+      cat("Error getting appointments:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # Create health goal
+  create_health_goal = function(pool, patient_id, user_id, goal_data) {
+    tryCatch({
+      query <- "
+        INSERT INTO public.health_goals
+        (patient_id, user_id, goal_category, goal_description,
+         target_value, current_value, start_date, target_date,
+         status, progress_percentage, notes)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        RETURNING goal_id
+      "
+      
+      result <- dbGetQuery(pool, query, params = list(
+        patient_id, user_id,
+        goal_data$goal_category, goal_data$goal_description,
+        goal_data$target_value %||% NA, goal_data$current_value %||% NA,
+        goal_data$start_date %||% Sys.Date(), goal_data$target_date %||% NA,
+        goal_data$status %||% "active", goal_data$progress_percentage %||% 0,
+        goal_data$notes %||% NA
+      ))
+      
+      return(result$goal_id[1])
+    }, error = function(e) {
+      cat("Error creating goal:", e$message, "\n")
+      return(NULL)
+    })
+  },
+  
+  # Get health goals
+  get_health_goals = function(pool, patient_id, active_only = TRUE) {
+    tryCatch({
+      if (active_only) {
+        query <- "
+          SELECT * FROM public.health_goals
+          WHERE patient_id = $1 AND status = 'active'
+          ORDER BY created_at DESC
+        "
+      } else {
+        query <- "
+          SELECT * FROM public.health_goals
+          WHERE patient_id = $1
+          ORDER BY created_at DESC
+        "
+      }
+      
+      result <- dbGetQuery(pool, query, params = list(patient_id))
+      return(result)
+    }, error = function(e) {
+      cat("Error getting goals:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # Update goal progress
+  update_goal_progress = function(pool, goal_id, progress_percentage, current_value = NULL) {
+    tryCatch({
+      if (!is.null(current_value)) {
+        query <- "
+          UPDATE public.health_goals
+          SET progress_percentage = $1, current_value = $2
+          WHERE goal_id = $3
+        "
+        dbExecute(pool, query, params = list(progress_percentage, current_value, goal_id))
+      } else {
+        query <- "
+          UPDATE public.health_goals
+          SET progress_percentage = $1
+          WHERE goal_id = $2
+        "
+        dbExecute(pool, query, params = list(progress_percentage, goal_id))
+      }
+      
+      return(TRUE)
+    }, error = function(e) {
+      cat("Error updating goal progress:", e$message, "\n")
+      return(FALSE)
+    })
   }
 )

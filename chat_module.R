@@ -14,6 +14,9 @@ chatModuleUI <- function(id) {
       tags$link(rel = "stylesheet", type = "text/css", href = "health-programs-styles.css"),
       tags$link(rel = "stylesheet", type = "text/css", href = "pregnancy-program-styles.css"),
       tags$link(rel = "stylesheet", type = "text/css", href = "pregnancy-dashboard-styles.css"),
+      tags$link(rel = "stylesheet", type = "text/css", href = "child-health-styles.css"),
+      tags$link(rel = "stylesheet", type = "text/css", href = "child-dashboard-styles.css"),
+      tags$link(rel = "stylesheet", type = "text/css", href = "chronic-disease-styles.css"),
       tags$link(rel = "preconnect", href = "https://fonts.googleapis.com"),
       tags$link(rel = "preconnect", href = "https://fonts.gstatic.com", crossorigin = ""),
       tags$link(href = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap", rel = "stylesheet"),
@@ -362,6 +365,15 @@ chatModuleUI <- function(id) {
         # Child Health Section (Initially Hidden)
         childHealthUI(ns("child_health")),
         
+        # Child Dashboard Section (Initially Hidden)
+        childDashboardUI(ns("child_dashboard")),
+        
+        # Chronic Disease Section (Initially Hidden)
+        chronicDiseaseUI(ns("chronic_disease")),
+        
+        # Chronic Disease Dashboard (Initially Hidden)
+        chronicDashboardUI(ns("chronic_dashboard")),
+        
         # Input Area
         tags$div(
           class = "chat-input-area",
@@ -503,6 +515,10 @@ chatModuleUI <- function(id) {
               const programsSection = document.getElementById('", ns("health_programs_container"), "') || document.querySelector('.health-programs-section');
               const pregnancyProgram = document.querySelector('.pregnancy-program-container');
               const pregnancyDashboard = document.querySelector('.pregnancy-dashboard');
+              const childHealth = document.querySelector('.child-health-container');
+              const childDashboard = document.querySelector('.child-dashboard');
+              const chronicDisease = document.querySelector('.chronic-disease-container');
+              const chronicDashboard = document.querySelector('.chronic-dashboard');
               const mainTitle = document.getElementById('", ns("main_title"), "') || document.querySelector('.chat-title');
               const recentChatsSection = document.querySelector('.recent-section');
               
@@ -540,6 +556,22 @@ chatModuleUI <- function(id) {
               if (pregnancyDashboard) {
                 pregnancyDashboard.style.display = 'none';
                 console.log('✅ Hid pregnancy dashboard');
+              }
+              if (childHealth) {
+                childHealth.style.display = 'none';
+                console.log('✅ Hid child enrollment');
+              }
+              if (childDashboard) {
+                childDashboard.style.display = 'none';
+                console.log('✅ Hid child dashboard');
+              }
+              if (chronicDisease) {
+                chronicDisease.style.display = 'none';
+                console.log('✅ Hid chronic disease enrollment');
+              }
+              if (chronicDashboard) {
+                chronicDashboard.style.display = 'none';
+                console.log('✅ Hid chronic disease dashboard');
               }
               
               // Update title
@@ -1436,6 +1468,15 @@ chatModuleServer <- function(id, auth_module = NULL) {
     # Initialize Child Health Module
     childHealthServer("child_health", reactive(current_user), reactive(db_conn))
     
+    # Initialize Child Dashboard Module
+    childDashboardServer("child_dashboard", reactive(current_user), reactive(db_conn))
+    
+    # Initialize Chronic Disease Module
+    chronicDiseaseServer("chronic_disease", reactive(current_user), reactive(db_conn))
+    
+    # Initialize Chronic Disease Dashboard Module
+    chronicDashboardServer("chronic_dashboard", reactive(current_user), reactive(db_conn))
+    
     # Update program cards based on enrollment status
     update_program_status <- function() {
       if (!is.null(db_conn) && !is.null(current_user)) {
@@ -1485,15 +1526,59 @@ chatModuleServer <- function(id, auth_module = NULL) {
     observeEvent(input$enroll_1000days, {
       cat("📝 User clicked on 1000 Days with Baho enrollment\n")
       
-      # Hide health programs section
-      session$sendCustomMessage("hideHealthPrograms", list())
+      # Check if user is already enrolled
+      pool <- db_conn
+      user <- current_user
       
-      # Show child health enrollment
-      shinyjs::runjs("
-        const childContainer = document.querySelector('.child-health-container');
-        if (childContainer) childContainer.style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      ")
+      if (!is.null(pool) && !is.null(user)) {
+        tryCatch({
+          # Check for existing enrollment
+          child_data <- db_functions$get_child_health_data(pool, user$user_id)
+          
+          if (!is.null(child_data) && nrow(child_data) > 0) {
+            cat("✅ User already enrolled - showing dashboard\n")
+            
+            # Hide health programs
+            session$sendCustomMessage("hideHealthPrograms", list())
+            
+            # Show dashboard directly
+            shinyjs::runjs("
+              const childDashboard = document.querySelector('.child-dashboard');
+              if (childDashboard) childDashboard.style.display = 'block';
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            ")
+          } else {
+            cat("📝 New enrollment - showing form\n")
+            
+            # Hide health programs section
+            session$sendCustomMessage("hideHealthPrograms", list())
+            
+            # Show child health enrollment
+            shinyjs::runjs("
+              const childContainer = document.querySelector('.child-health-container');
+              if (childContainer) childContainer.style.display = 'block';
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            ")
+          }
+        }, error = function(e) {
+          cat("ERROR checking enrollment:", e$message, "\n")
+          # Show enrollment form on error
+          session$sendCustomMessage("hideHealthPrograms", list())
+          shinyjs::runjs("
+            const childContainer = document.querySelector('.child-health-container');
+            if (childContainer) childContainer.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          ")
+        })
+      } else {
+        # No database or user, show enrollment form
+        session$sendCustomMessage("hideHealthPrograms", list())
+        shinyjs::runjs("
+          const childContainer = document.querySelector('.child-health-container');
+          if (childContainer) childContainer.style.display = 'block';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        ")
+      }
     })
     
     # 9 Months with Baho
@@ -1543,14 +1628,52 @@ chatModuleServer <- function(id, auth_module = NULL) {
       }
     })
     
-    observeEvent(input$enroll_1000days, {
-      cat("📝 User clicked on 1000 Days with Baho enrollment\n")
-      showNotification("1000 Days with Baho - Coming Soon!", type = "message", duration = 3)
-    })
-    
     observeEvent(input$enroll_bahoforlife, {
       cat("📝 User clicked on Baho for Life enrollment\n")
-      showNotification("Baho for Life - Coming Soon!", type = "message", duration = 3)
+      pool <- db_conn
+      user <- current_user
+      
+      if (!is.null(pool) && !is.null(user)) {
+        tryCatch({
+          # Check if user is already enrolled
+          patient_data <- db_functions$get_chronic_patient_data(pool, user$user_id)
+          
+          if (!is.null(patient_data) && nrow(patient_data) > 0) {
+            cat("✅ User already enrolled - showing dashboard\n")
+            session$sendCustomMessage("hideHealthPrograms", list())
+            shinyjs::runjs("
+              const chronicDashboard = document.querySelector('.chronic-dashboard');
+              if (chronicDashboard) chronicDashboard.style.display = 'block';
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            ")
+          } else {
+            cat("📝 New enrollment - showing form\n")
+            session$sendCustomMessage("hideHealthPrograms", list())
+            shinyjs::runjs("
+              const chronicContainer = document.querySelector('.chronic-disease-container');
+              if (chronicContainer) chronicContainer.style.display = 'block';
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            ")
+          }
+        }, error = function(e) {
+          cat("ERROR checking enrollment:", e$message, "\n")
+          # Default to showing enrollment form
+          session$sendCustomMessage("hideHealthPrograms", list())
+          shinyjs::runjs("
+            const chronicContainer = document.querySelector('.chronic-disease-container');
+            if (chronicContainer) chronicContainer.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          ")
+        })
+      } else {
+        # Default to showing enrollment form
+        session$sendCustomMessage("hideHealthPrograms", list())
+        shinyjs::runjs("
+          const chronicContainer = document.querySelector('.chronic-disease-container');
+          if (chronicContainer) chronicContainer.style.display = 'block';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        ")
+      }
     })
     
     # Initialize a new session (without loading history)
@@ -1612,10 +1735,18 @@ chatModuleServer <- function(id, auth_module = NULL) {
             const programsSection = document.querySelector('.health-programs-section');
             const pregnancyProgram = document.querySelector('.pregnancy-program-container');
             const pregnancyDashboard = document.querySelector('.pregnancy-dashboard');
+            const childHealth = document.querySelector('.child-health-container');
+            const childDashboard = document.querySelector('.child-dashboard');
+            const chronicDisease = document.querySelector('.chronic-disease-container');
+            const chronicDashboard = document.querySelector('.chronic-dashboard');
             
             if (programsSection) programsSection.style.display = 'none';
             if (pregnancyProgram) pregnancyProgram.style.display = 'none';
             if (pregnancyDashboard) pregnancyDashboard.style.display = 'none';
+            if (childHealth) childHealth.style.display = 'none';
+            if (childDashboard) childDashboard.style.display = 'none';
+            if (chronicDisease) chronicDisease.style.display = 'none';
+            if (chronicDashboard) chronicDashboard.style.display = 'none';
             
             // Show chat interface
             const messagesArea = document.querySelector('.chat-messages');

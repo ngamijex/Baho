@@ -534,8 +534,18 @@ childHealthServer <- function(id, current_user, db_pool) {
     observeEvent(input$go_to_dashboard, {
       cat("📊 Navigating to child health dashboard...\n")
       
+      # Hide enrollment form
+      shinyjs::runjs("
+        const childContainer = document.querySelector('.child-health-container');
+        if (childContainer) childContainer.style.display = 'none';
+      ")
+      
       # Show dashboard
-      session$sendCustomMessage("showChildHealthDashboard", list())
+      shinyjs::runjs("
+        const childDashboard = document.querySelector('.child-dashboard');
+        if (childDashboard) childDashboard.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      ")
       
       showNotification("Welcome to your child's health dashboard!", type = "message", duration = 3)
     })
