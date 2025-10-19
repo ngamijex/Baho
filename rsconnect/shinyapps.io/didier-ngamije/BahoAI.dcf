@@ -5,7 +5,7 @@ account: didier-ngamije
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 15511836
-bundleId: 11052607
+bundleId: 11054827
 url: https://baho.shinyapps.io/BahoAI/
 version: 1
 asMultiple: FALSE
