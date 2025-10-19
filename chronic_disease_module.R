@@ -459,7 +459,7 @@ chronicDiseaseUI <- function(id) {
               "Previous"
             ),
             class = "btn-navigation btn-secondary",
-            style = "display: none;"
+            style = "display: none !important;"
           ),
           
           actionButton(
@@ -478,7 +478,7 @@ chronicDiseaseUI <- function(id) {
               tags$i(class = "fas fa-check")
             ),
             class = "btn-navigation btn-success",
-            style = "display: none;"
+            style = "display: none !important;"
           )
         )
       )
@@ -494,10 +494,18 @@ chronicDiseaseServer <- function(id, current_user, db_conn) {
     current_step <- reactiveVal(1)
     patient_id <- reactiveVal(NULL)
     
-    # Initialize: Hide prev button and submit button initially
+    # Initialize: Set up initial state
     observe({
+      # Force hide all buttons first
       shinyjs::hide("prev_step")
       shinyjs::hide("submit_enrollment")
+      shinyjs::hide("next_step")
+      
+      # Then show only the correct buttons for step 1
+      shinyjs::show("next_step")
+      
+      # Set up step indicators
+      update_step_ui(1)
     })
     
     # Update step UI
@@ -534,9 +542,11 @@ chronicDiseaseServer <- function(id, current_user, db_conn) {
       }
       
       if (step == 4) {
+        # Last step - hide Next button, show Complete Enrollment button
         shinyjs::hide("next_step")
         shinyjs::show("submit_enrollment")
       } else {
+        # Not last step - show Next button, hide Complete Enrollment button
         shinyjs::show("next_step")
         shinyjs::hide("submit_enrollment")
       }
@@ -556,8 +566,10 @@ chronicDiseaseServer <- function(id, current_user, db_conn) {
       }
       
       if (step < 4) {
-        current_step(step + 1)
-        update_step_ui(step + 1)
+        new_step <- step + 1
+        current_step(new_step)
+        update_step_ui(new_step)
+        cat("📝 Moved to step:", new_step, "\n")
       }
     })
     
@@ -565,8 +577,10 @@ chronicDiseaseServer <- function(id, current_user, db_conn) {
     observeEvent(input$prev_step, {
       step <- current_step()
       if (step > 1) {
-        current_step(step - 1)
-        update_step_ui(step - 1)
+        new_step <- step - 1
+        current_step(new_step)
+        update_step_ui(new_step)
+        cat("📝 Moved to step:", new_step, "\n")
       }
     })
     
@@ -574,8 +588,8 @@ chronicDiseaseServer <- function(id, current_user, db_conn) {
     observeEvent(input$submit_enrollment, {
       cat("💾 Submitting chronic disease enrollment...\n")
       
-      pool <- db_conn
-      user <- current_user
+      pool <- db_conn()
+      user <- current_user()
       
       if (is.null(pool) || is.null(user)) {
         showNotification("Database connection error. Please try again.", type = "error")
@@ -583,9 +597,26 @@ chronicDiseaseServer <- function(id, current_user, db_conn) {
       }
       
       tryCatch({
+        # Get program ID for "Baho for Life"
+        cat("📝 Getting Baho for Life program ID...\n")
+        program <- db_functions$get_health_program_by_name(pool, "Baho for Life")
+        
+        if (is.null(program) || nrow(program) == 0) {
+          showNotification("Error: Baho for Life program not found. Please contact support.", type = "error")
+          return()
+        }
+        
+        program_id <- program$program_id[1]
+        
         # Enroll in program
         cat("📝 Enrolling in Baho for Life program...\n")
-        enrollment_id <- db_functions$enroll_in_program(pool, user$user_id, "Baho for Life")
+        enrollment_id <- db_functions$enroll_in_program(
+          pool,
+          user$user_id,
+          program_id,
+          Sys.Date(),
+          Sys.Date() + 365  # 1 year from now
+        )
         
         if (is.null(enrollment_id)) {
           showNotification("Error enrolling in program. Please try again.", type = "error")
@@ -638,12 +669,23 @@ chronicDiseaseServer <- function(id, current_user, db_conn) {
         for (i in 1:4) {
           shinyjs::hide(paste0("step_", i))
         }
-        shinyjs::hide("prev_step")
-        shinyjs::hide("next_step")
-        shinyjs::hide("submit_enrollment")
         
+        # Hide ALL navigation buttons
         shinyjs::runjs("
-          document.querySelector('.step-progress').style.display = 'none';
+          const prevBtn = document.getElementById('", ns("prev_step"), "');
+          const nextBtn = document.getElementById('", ns("next_step"), "');
+          const submitBtn = document.getElementById('", ns("submit_enrollment"), "');
+          if (prevBtn) prevBtn.style.display = 'none';
+          if (nextBtn) nextBtn.style.display = 'none';
+          if (submitBtn) submitBtn.style.display = 'none';
+          
+          // Hide step progress
+          const stepProgress = document.querySelector('.step-progress');
+          if (stepProgress) stepProgress.style.display = 'none';
+          
+          // Hide entire navigation container
+          const navContainer = document.querySelector('.form-navigation');
+          if (navContainer) navContainer.style.display = 'none';
         ")
         
         shinyjs::show("success_screen")

@@ -136,10 +136,11 @@ db_functions <- list(
   
   get_user_sessions = function(pool, user_id) {
     query <- "
-      SELECT session_id, session_name, created_at
-      FROM public.chat_sessions
-      WHERE user_id = $1
-      ORDER BY created_at DESC
+      SELECT DISTINCT cs.session_id, cs.session_name, cs.created_at
+      FROM public.chat_sessions cs
+      INNER JOIN public.messages m ON cs.session_id = m.session_id
+      WHERE cs.user_id = $1
+      ORDER BY cs.created_at DESC
     "
     result <- dbGetQuery(pool, query, params = list(user_id))
     return(result)
@@ -223,6 +224,18 @@ db_functions <- list(
       return(programs)
     }, error = function(e) {
       cat("Error getting health programs:", e$message, "\n")
+      return(data.frame())
+    })
+  },
+  
+  # Get health program by name
+  get_health_program_by_name = function(pool, program_name) {
+    tryCatch({
+      query <- "SELECT * FROM public.health_programs WHERE program_name = $1 AND is_active = TRUE"
+      program <- dbGetQuery(pool, query, params = list(program_name))
+      return(program)
+    }, error = function(e) {
+      cat("Error getting health program by name:", e$message, "\n")
       return(data.frame())
     })
   },

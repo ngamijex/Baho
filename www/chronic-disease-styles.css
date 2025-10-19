@@ -326,6 +326,11 @@
   padding: 4rem 2rem;
 }
 
+/* Hide navigation when success screen is visible */
+.success-screen ~ .form-navigation {
+  display: none !important;
+}
+
 .success-icon {
   font-size: 6rem;
   margin-bottom: 1.5rem;
@@ -455,41 +460,26 @@
   box-shadow: 0 8px 24px rgba(43, 122, 155, 0.2);
 }
 
-.chronic-dashboard .header-content {
-  color: #FFFFFF;
+.chronic-dashboard .dashboard-title-section {
+  margin-bottom: 0.5rem;
+}
+
+.chronic-dashboard .dashboard-greeting {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.5rem;
 }
 
 .chronic-dashboard .dashboard-title {
   color: #FFFFFF;
   font-size: 2rem;
   font-weight: 700;
-  margin: 0 0 0.5rem 0;
-}
-
-.chronic-dashboard .dashboard-subtitle {
-  color: rgba(255, 255, 255, 0.95);
-  font-size: 1.1rem;
   margin: 0;
 }
 
-.chronic-dashboard .btn-back {
-  background: rgba(255, 255, 255, 0.2);
-  color: #FFFFFF;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.chronic-dashboard .btn-back:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateX(-4px);
+.chronic-dashboard .dashboard-subtitle-section {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.95rem;
 }
 
 /* Stats Grid */
@@ -529,22 +519,22 @@
 }
 
 .stat-medications .stat-icon {
-  background: linear-gradient(135deg, #805AD5, #B794F4);
+  background: #805AD5;
   color: #FFFFFF;
 }
 
 .stat-vitals .stat-icon {
-  background: linear-gradient(135deg, #E53E3E, #FC8181);
+  background: #E53E3E;
   color: #FFFFFF;
 }
 
 .stat-appointments .stat-icon {
-  background: linear-gradient(135deg, #2B7A9B, #4895C7);
+  background: #2B7A9B;
   color: #FFFFFF;
 }
 
 .stat-goals .stat-icon {
-  background: linear-gradient(135deg, #DD6B20, #F6AD55);
+  background: #DD6B20;
   color: #FFFFFF;
 }
 
@@ -605,7 +595,7 @@
   height: 60px;
   margin: 0 auto 1rem;
   border-radius: 1rem;
-  background: linear-gradient(135deg, #2B7A9B, #4895C7);
+  background: #2B7A9B;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -765,7 +755,7 @@
 /* Main Containers */
 body.dark-mode .chronic-disease-container,
 body.dark-mode .chronic-dashboard {
-  background: #1A202C;
+  background: #212121 !important;
 }
 
 /* Cards and Surfaces */
@@ -773,18 +763,69 @@ body.dark-mode .chronic-enrollment-form,
 body.dark-mode .stat-card,
 body.dark-mode .action-card,
 body.dark-mode .activity-column,
-body.dark-mode .chart-section {
-  background: #2D3748;
-  border-color: #4A5568;
+body.dark-mode .chart-section,
+body.dark-mode .dashboard-card {
+  background: #2A2A2A !important;
+  border-color: #3A3A3A !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Program Header in Dark Mode */
+body.dark-mode .chronic-enrollment-form .program-header {
+  background: linear-gradient(135deg, #2B7A9B 0%, #4895C7 100%) !important;
+  border-bottom: 2px solid #3A3A3A !important;
+}
+
+body.dark-mode .chronic-enrollment-form .program-header h1 {
+  color: #FFFFFF !important;
+}
+
+body.dark-mode .chronic-enrollment-form .program-header p {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Card Headers in Dark Mode */
+body.dark-mode .card-header {
+  border-bottom-color: #3A3A3A !important;
+}
+
+/* Step Progress in Dark Mode */
+body.dark-mode .step-progress {
+  background: #212121 !important;
+}
+
+body.dark-mode .step-progress::before {
+  background: #3A3A3A !important;
+}
+
+/* Back Button in Dark Mode */
+body.dark-mode .chronic-disease-container .program-back-btn,
+body.dark-mode .chronic-dashboard .program-back-btn {
+  background: #2A2A2A !important;
+  border-color: #3A3A3A !important;
+  color: #63B3ED !important;
+}
+
+body.dark-mode .chronic-disease-container .program-back-btn:hover,
+body.dark-mode .chronic-dashboard .program-back-btn:hover {
+  background: #1F1F1F !important;
+  border-color: #63B3ED !important;
 }
 
 /* Form Inputs */
 body.dark-mode .form-group input,
 body.dark-mode .form-group select,
 body.dark-mode .form-group textarea {
-  background: #1A202C;
-  border-color: #4A5568;
-  color: #E2E8F0;
+  background: #1F1F1F !important;
+  border-color: #3A3A3A !important;
+  color: #E2E8F0 !important;
+}
+
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group select:focus,
+body.dark-mode .form-group textarea:focus {
+  border-color: #63B3ED !important;
+  box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.2) !important;
 }
 
 body.dark-mode .form-group input::placeholder,
@@ -795,15 +836,15 @@ body.dark-mode .form-group textarea::placeholder {
 
 /* Checkbox Items */
 body.dark-mode .checkbox-item {
-  background: #1A202C;
-  border-color: #4A5568;
+  background: #1F1F1F;
+  border-color: #3A3A3A;
 }
 
 /* Activity Items */
 body.dark-mode .medication-item,
 body.dark-mode .appointment-item {
-  background: #1A202C;
-  border-color: #4A5568;
+  background: #1F1F1F;
+  border-color: #3A3A3A;
 }
 
 /* Text Colors */
@@ -834,8 +875,8 @@ body.dark-mode .chronic-enrollment-form .program-header p {
 
 /* Step Progress */
 body.dark-mode .step-number {
-  background: #1A202C;
-  border-color: #4A5568;
+  background: #1F1F1F;
+  border-color: #3A3A3A;
   color: #A0AEC0;
 }
 
@@ -845,8 +886,8 @@ body.dark-mode .step-label {
 
 /* Confirmation Summary */
 body.dark-mode .confirmation-summary {
-  background: #2D3748;
-  border-color: #4A5568;
+  background: #2A2A2A;
+  border-color: #3A3A3A;
 }
 
 body.dark-mode .summary-title,
@@ -860,7 +901,609 @@ body.dark-mode .empty-state {
   color: #718096;
 }
 
+/* ============= ADDITIONAL DASHBOARD STYLES ============= */
+
+/* Dashboard Header (non-gradient, professional style) */
+.chronic-dashboard .dashboard-header {
+  background: linear-gradient(135deg, #2B7A9B 0%, #4895C7 100%);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 24px rgba(43, 122, 155, 0.2);
+}
+
+.dashboard-title-section {
+  margin-bottom: 1rem;
+}
+
+.dashboard-greeting {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-subtitle-section {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.95rem;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.5rem;
+}
+
+.dashboard-card {
+  background: #FFFFFF;
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #E2E8F0;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.col-span-4 { grid-column: span 4; }
+.col-span-6 { grid-column: span 6; }
+.col-span-8 { grid-column: span 8; }
+.col-span-12 { grid-column: span 12; }
+
+/* Card Header */
+.card-header {
+  padding: 1.5rem;
+  border-bottom: 2px solid #E2E8F0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1A202C;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.card-title i {
+  color: #2B7A9B;
+}
+
+/* Card Content */
+.card-content {
+  padding: 1.5rem;
+}
+
+/* Quick Actions Grid */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+/* Medications List */
+.medications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.medication-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #F7FAFC;
+  border-radius: 0.75rem;
+  border: 1px solid #E2E8F0;
+  transition: all 0.3s ease;
+}
+
+.medication-item:hover {
+  background: #EDF2F7;
+  border-color: #CBD5E0;
+}
+
+.med-info {
+  flex: 1;
+}
+
+.med-name {
+  font-weight: 600;
+  color: #1A202C;
+  margin-bottom: 0.25rem;
+}
+
+.med-details {
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+.btn-log-med {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #48BB78;
+  color: #FFFFFF;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.btn-log-med:hover {
+  background: #38A169;
+  transform: scale(1.1);
+}
+
+/* Adherence Display */
+.adherence-container {
+  padding: 1rem;
+}
+
+.adherence-display {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.adherence-percentage {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #48BB78;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.adherence-label {
+  font-size: 0.95rem;
+  color: #718096;
+  margin-bottom: 1.5rem;
+}
+
+.adherence-bar {
+  width: 100%;
+  height: 12px;
+  background: #E2E8F0;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.adherence-fill {
+  height: 100%;
+  background: #48BB78;
+  border-radius: 1rem;
+  transition: width 1s ease;
+}
+
+/* Appointments List */
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.appointment-item-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #F7FAFC;
+  border-radius: 0.75rem;
+  border: 1px solid #E2E8F0;
+  border-left: 4px solid #2B7A9B;
+  transition: all 0.3s ease;
+}
+
+.appointment-item-card:hover {
+  background: #EDF2F7;
+  border-color: #2B7A9B;
+}
+
+.apt-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.5rem;
+  background: #2B7A9B;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.apt-details {
+  flex: 1;
+}
+
+.apt-date {
+  font-weight: 700;
+  color: #2B7A9B;
+  margin-bottom: 0.25rem;
+}
+
+.apt-type {
+  font-weight: 600;
+  color: #1A202C;
+  text-transform: capitalize;
+  margin-bottom: 0.25rem;
+}
+
+.apt-provider {
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+/* Symptoms List */
+.symptoms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.symptom-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #F7FAFC;
+  border-radius: 0.75rem;
+  border: 1px solid #E2E8F0;
+  transition: all 0.3s ease;
+}
+
+.symptom-item:hover {
+  background: #EDF2F7;
+  border-color: #CBD5E0;
+}
+
+.symptom-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  color: #FFFFFF;
+}
+
+.symptom-icon.severity-mild {
+  background: #48BB78;
+}
+
+.symptom-icon.severity-moderate {
+  background: #ED8936;
+}
+
+.symptom-icon.severity-severe {
+  background: #E53E3E;
+}
+
+.symptom-details {
+  flex: 1;
+}
+
+.symptom-type {
+  font-weight: 600;
+  color: #1A202C;
+  margin-bottom: 0.25rem;
+}
+
+.symptom-info {
+  font-size: 0.85rem;
+  color: #718096;
+  text-transform: capitalize;
+}
+
+/* Goals List */
+.goals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.goal-item {
+  padding: 1rem;
+  background: #F7FAFC;
+  border-radius: 0.75rem;
+  border: 1px solid #E2E8F0;
+  transition: all 0.3s ease;
+}
+
+.goal-item:hover {
+  background: #EDF2F7;
+  border-color: #CBD5E0;
+}
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.goal-title {
+  font-weight: 600;
+  color: #1A202C;
+  flex: 1;
+}
+
+.goal-progress-text {
+  font-weight: 700;
+  color: #2B7A9B;
+  font-size: 1.1rem;
+}
+
+.goal-progress-bar {
+  height: 8px;
+  background: #E2E8F0;
+  border-radius: 1rem;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.goal-progress-fill {
+  height: 100%;
+  background: #48BB78;
+  border-radius: 1rem;
+  transition: width 0.5s ease;
+}
+
+.goal-meta {
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+/* Modal Lists */
+.medications-list-modal,
+.appointments-list-modal,
+.symptoms-list-modal,
+.labtests-list-modal,
+.goals-list-modal {
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.med-card,
+.apt-card,
+.symptom-card,
+.labtest-card,
+.goal-card {
+  padding: 1rem;
+  background: #F7FAFC;
+  border-radius: 0.75rem;
+  border: 1px solid #E2E8F0;
+  margin-bottom: 0.75rem;
+}
+
+.med-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.med-card-name {
+  font-weight: 600;
+  color: #1A202C;
+}
+
+.med-card-dosage {
+  font-weight: 600;
+  color: #2B7A9B;
+}
+
+.med-card-details {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+.apt-card-date {
+  font-weight: 700;
+  color: #2B7A9B;
+  margin-bottom: 0.25rem;
+}
+
+.apt-card-type {
+  font-weight: 600;
+  color: #1A202C;
+  text-transform: capitalize;
+  margin-bottom: 0.25rem;
+}
+
+.apt-card-location {
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+.symptom-card-type {
+  font-weight: 600;
+  color: #1A202C;
+  margin-bottom: 0.25rem;
+}
+
+.symptom-card-meta {
+  font-size: 0.85rem;
+  color: #718096;
+  text-transform: capitalize;
+}
+
+.labtest-name {
+  font-weight: 600;
+  color: #1A202C;
+  margin-bottom: 0.25rem;
+}
+
+.labtest-result {
+  font-weight: 700;
+  color: #2B7A9B;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.labtest-meta {
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+.goal-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.goal-card-category {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #718096;
+  text-transform: uppercase;
+}
+
+.goal-card-progress {
+  font-weight: 700;
+  color: #48BB78;
+}
+
+.goal-card-description {
+  font-weight: 600;
+  color: #1A202C;
+  margin-bottom: 0.75rem;
+}
+
+.goal-card-progress-bar {
+  height: 6px;
+  background: #E2E8F0;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.goal-card-progress-fill {
+  height: 100%;
+  background: #48BB78;
+  border-radius: 1rem;
+  transition: width 0.5s ease;
+}
+
+/* Modal Form Styling */
+.modal-form-group.full-width {
+  grid-column: span 2;
+}
+
+.modal-textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+  background: #FFFFFF;
+  color: #2D3748;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-textarea:focus {
+  outline: none;
+  border-color: #2B7A9B;
+  box-shadow: 0 0 0 3px rgba(43, 122, 155, 0.1);
+}
+
+/* ============= DARK MODE ENHANCEMENTS ============= */
+
+/* Dashboard Components in Dark Mode */
+body.dark-mode .medication-item,
+body.dark-mode .appointment-item-card,
+body.dark-mode .symptom-item,
+body.dark-mode .goal-item {
+  background: #1F1F1F;
+  border-color: #3A3A3A;
+}
+
+body.dark-mode .med-name,
+body.dark-mode .apt-type,
+body.dark-mode .symptom-type,
+body.dark-mode .goal-title {
+  color: #E2E8F0;
+}
+
+body.dark-mode .med-details,
+body.dark-mode .apt-provider,
+body.dark-mode .symptom-info,
+body.dark-mode .goal-meta {
+  color: #A0AEC0;
+}
+
+body.dark-mode .apt-date {
+  color: #63B3ED;
+}
+
+body.dark-mode .adherence-bar {
+  background: #3A3A3A;
+}
+
+body.dark-mode .goal-progress-bar {
+  background: #3A3A3A;
+}
+
+body.dark-mode .med-card,
+body.dark-mode .apt-card,
+body.dark-mode .symptom-card,
+body.dark-mode .labtest-card,
+body.dark-mode .goal-card {
+  background: #1F1F1F;
+  border-color: #3A3A3A;
+}
+
+body.dark-mode .med-card-name,
+body.dark-mode .apt-card-type,
+body.dark-mode .symptom-card-type,
+body.dark-mode .labtest-name,
+body.dark-mode .goal-card-description {
+  color: #E2E8F0;
+}
+
+body.dark-mode .med-card-dosage,
+body.dark-mode .apt-card-date,
+body.dark-mode .labtest-result {
+  color: #63B3ED;
+}
+
+body.dark-mode .modal-textarea {
+  background: #1F1F1F;
+  border-color: #3A3A3A;
+  color: #E2E8F0;
+}
+
+body.dark-mode .modal-textarea:focus {
+  border-color: #63B3ED;
+  box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.2);
+}
+
 /* ============= RESPONSIVE DESIGN ============= */
+
+@media (max-width: 1024px) {
+  .col-span-4,
+  .col-span-6,
+  .col-span-8,
+  .col-span-12 {
+    grid-column: span 12;
+  }
+}
 
 @media (max-width: 768px) {
   .chronic-disease-container,
@@ -875,6 +1518,10 @@ body.dark-mode .empty-state {
   .form-row,
   .modal-form-row {
     grid-template-columns: 1fr;
+  }
+  
+  .modal-form-group.full-width {
+    grid-column: span 1;
   }
   
   .checkbox-group {
@@ -893,7 +1540,8 @@ body.dark-mode .empty-state {
     grid-template-columns: 1fr;
   }
   
-  .quick-actions-grid.chronic-actions {
+  .quick-actions-grid.chronic-actions,
+  .quick-actions-grid {
     grid-template-columns: repeat(2, 1fr);
   }
   
@@ -915,7 +1563,12 @@ body.dark-mode .empty-state {
     font-size: 1.75rem;
   }
   
-  .quick-actions-grid.chronic-actions {
+  .quick-actions-grid.chronic-actions,
+  .quick-actions-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .adherence-percentage {
+    font-size: 2.5rem;
   }
 }

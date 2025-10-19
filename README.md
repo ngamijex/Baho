@@ -10,11 +10,13 @@ Experience the first line of health service delivery for Rwanda with 24/7 AI-pow
 
 **Watch Demo Video:** [View BahoAI Demo on Google Drive](https://drive.google.com/file/d/1mqKtzt_Kjldo-0dNWFlJ5KteJcumab0c/view?usp=sharing)
 
-### Demo Credentials
+### Getting Started
 
-To test the application, use these credentials:
-- **Email:** `admin@gmail.com`
-- **Password:** `admin123`
+1. Visit the application URL
+2. Click on **"Get Started"** to create your account
+3. Fill in your details (name, email, phone, location, password)
+4. Login with your credentials
+5. Start chatting with Baho AI Health Assistant!
 
 ## Features
 
